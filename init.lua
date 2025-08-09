@@ -84,13 +84,12 @@ vim.keymap.set("i", "{<CR>", "{}<Esc>i<CR><Esc>O")
 vim.keymap.set("i", "(", "()<Esc>i")
 vim.keymap.set("i", "[", "[]<Esc>i")
 vim.keymap.set("i", "{", "{}<Esc>i")
-vim.keymap.set("i", "'", "''<Esc>i")
 vim.keymap.set("i", '"', '""<Esc>i')
 -- the most basic snippets ever
 ---- go error handling
 vim.keymap.set("n", "<leader>e", 'A<CR>if err != nil {log.Fatalln("")}<Esc>hhi')
 ---- c for loop
-vim.keymap.set("n", "<leader>l", 'A<CR>for (size_t i = 0; i < n; ++i){<CR>}<CR><Esc>')
+vim.keymap.set("n", "<leader>l", 'A<CR>for (size_t i = 0; i < n; ++i){<CR>}<CR><Esc>kk0fn')
 
 -- colorscheme -- possible name: POND --
 vim.o.termguicolors = true
@@ -192,7 +191,7 @@ require("lazy").setup {
             }
         end,
     },
-    { -- LSP Configuration & Plugins
+    { -- LSP
         "neovim/nvim-lspconfig",
         dependencies = { "williamboman/mason.nvim", "williamboman/mason-lspconfig.nvim",
         "WhoIsSethDaniel/mason-tool-installer.nvim", },
