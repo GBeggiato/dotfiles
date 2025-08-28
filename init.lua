@@ -9,7 +9,7 @@ vim.opt.wrap = true
 vim.opt.expandtab = true
 vim.opt.tabstop = 4
 vim.opt.shiftwidth = 4
-vim.opt.ignorecase = false
+vim.opt.ignorecase = true
 vim.opt.smartcase = true
 vim.o.hlsearch = true
 vim.opt.colorcolumn = "80"
@@ -60,7 +60,7 @@ vim.keymap.set("n", "<leader>cc", "<cmd>cclose<CR>")
 vim.keymap.set("n", "<leader>cn", "<cmd>cnext<CR>")
 vim.keymap.set("n", "<leader>cp", "<cmd>cprevious<CR>")
 -- [V]im [G]rep (internal search) shortcut
-vim.keymap.set("n", "<leader>vg", ":<C-f>ivimgrep//g **/<Esc>5hi")
+vim.keymap.set("n", "<leader>vg", ":<C-f>ivimgrep//jg **/<Esc>6hi")
 -- leader + p for pasting and not losing yanked buffer
 vim.keymap.set("v", "<leader>p", "\"_dP")
 -- [*][S]urround with given thing
@@ -87,7 +87,7 @@ vim.keymap.set("i", "{", "{}<Esc>i")
 vim.keymap.set("i", '"', '""<Esc>i')
 -- the most basic snippets ever
 ---- go error handling
-vim.keymap.set("n", "<leader>e", 'A<CR>if err != nil {log.Fatalln("")}<Esc>hhi')
+vim.keymap.set("n", "<leader>e", 'A<CR>if err != nil {return nil, err}<CR><Esc>')
 ---- c for loop
 vim.keymap.set("n", "<leader>l", 'A<CR>for (size_t i = 0; i < n; ++i){<CR>}<CR><Esc>kk0fn')
 
@@ -103,8 +103,8 @@ vim.cmd [[ hi StatusLine guibg=Indigo guifg=White]] -- active window statusline
 vim.cmd [[ hi PmenuSel guifg=DarkMagenta guibg=White ]] -- selection background
 vim.cmd [[ hi CurSearch guibg=DarkMagenta guifg=White ]] -- search background
 vim.cmd [[ hi StatusLineNC guibg=DarkMagenta guifg=White]] -- other statuslines
-vim.cmd [[ set pumheight=5 ]] -- how many suggestions in floating windows
-vim.cmd [[ hi Comment guifg=#00FF9F ]] -- acqua/green
+vim.cmd [[ set pumheight=4 ]] -- how many suggestions in floating windows
+vim.cmd [[ hi Comment guifg=#00FF9F ]] -- acqua/green, NvimLightGreen
 vim.cmd [[ hi LineNr guifg=White ]]
 -- @fields require treesitter
 local white_fields = {
@@ -139,9 +139,9 @@ local type_fields = { "@type", "@type.builtin", "@type.definition", }
 local set_colors = function(fields, color)
     for _, f in ipairs(fields) do vim.api.nvim_set_hl(0, f, {fg=color, bold=false}) end
 end
-set_colors(white_fields, "white")
-set_colors(string_fields, "lime")
-set_colors(func_fields, "NvimLightCyan") -- lightblue, aqua = cyan, darkcyan, NvimLightCyan
+set_colors(string_fields, "lime") -- default, lime
+set_colors(white_fields, "NvimLightGrey2") -- White
+set_colors(func_fields, "NvimLightCyan") -- NvimLightCyan, NvimLightGrey2
 set_colors(builtin_fields, "darkorange")
 set_colors(type_fields, "darkorange")
 set_colors(kw_fields, "yellow")
@@ -157,7 +157,6 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 require("lazy").setup {
-
     { -- Highlight, edit, and navigate code
         "nvim-treesitter/nvim-treesitter",
         dependencies = {"https://github.com/nvim-treesitter/nvim-treesitter-textobjects", },
@@ -187,7 +186,12 @@ require("lazy").setup {
                     ["<C-y>"] = cmp.mapping.confirm { select = true },
                     ["<CR>"] = cmp.mapping.confirm { select = true },
                 },
-                sources = { {name = "path"}, {name = "buffer"}, {name = "nvim_lsp"}, {name = "snippets"}, },
+                sources = { 
+                    -- {name = "nvim_lsp"}, -- <c-x><c-o> for triggerign suggestions
+                    {name = "buffer"}, 
+                    {name = "path"}, 
+                    {name = "snippets"}, 
+                },
             }
         end,
     },
@@ -225,5 +229,4 @@ require("lazy").setup {
             }, }
         end,
     },
-
 }
