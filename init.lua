@@ -11,7 +11,7 @@ vim.opt.tabstop = 4
 vim.opt.shiftwidth = 4
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
-vim.o.hlsearch = true
+vim.opt.hlsearch = true
 vim.opt.colorcolumn = "80"
 vim.opt.clipboard = "unnamedplus" -- sync vim and standard copy register
 vim.opt.scrolloff = 999 -- cursor always mid-screen
@@ -24,7 +24,7 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 })
 -- readable errors (LSP): see <leader>d below
 vim.diagnostic.config({virtual_text = false, virtual_lines = false})
-vim.o.winborder = "single"
+vim.opt.winborder = "single"
 
 -- [[remap land]] (M = meta = alt key)
 -- better cmd line
@@ -45,8 +45,8 @@ vim.opt.path = vim.opt.path + "**"
 vim.keymap.set("n", "<leader>f", ":find ")
 -- [N]ewline: paste line below + maintaing cursor column position
 vim.keymap.set("n", "<C-n>", "<cmd>t.|<CR>")
--- open default file explorer
-vim.keymap.set("n", "-", "<cmd>Ex<CR>")
+-- open default file explorer (Netrw).
+vim.keymap.set("n", "-", "<cmd>Explore<CR>")
 -- resize splits
 vim.keymap.set("n", "<C-Left>", "<cmd>vertical resize -3<CR>")
 vim.keymap.set("n", "<C-Right>", "<cmd>vertical resize +3<CR>")
@@ -54,11 +54,9 @@ vim.keymap.set("n", "<C-Down>", "<cmd>horizontal resize -3<CR>")
 vim.keymap.set("n", "<C-Up>", "<cmd>horizontal resize +3<CR>")
 -- [C]ompilation [M]ode / [C]ompile [M]e
 -- set makeprg=... (escape spaces with \)
+-- [] + q to go across errors
 vim.keymap.set("n", "<leader>cm", "<cmd>make<CR>")
 vim.keymap.set("n", "<leader>co", "<cmd>copen<CR>")
-vim.keymap.set("n", "<leader>cc", "<cmd>cclose<CR>")
-vim.keymap.set("n", "<leader>cn", "<cmd>cnext<CR>")
-vim.keymap.set("n", "<leader>cp", "<cmd>cprevious<CR>")
 -- [V]im [G]rep (internal search) shortcut
 vim.keymap.set("n", "<leader>vg", ":<C-f>ivimgrep//jg **/<Esc>6hi")
 -- leader + p for pasting and not losing yanked buffer
@@ -87,12 +85,12 @@ vim.keymap.set("i", "{", "{}<Esc>i")
 vim.keymap.set("i", '"', '""<Esc>i')
 -- the most basic snippets ever
 ---- go error handling
-vim.keymap.set("n", "<leader>e", 'A<CR>if err != nil {return nil, err}<CR><Esc>')
+vim.keymap.set("n", "<leader>e", 'A<CR>if err != nil {<CR>return nil, err<CR>}<Esc>')
 ---- c for loop
 vim.keymap.set("n", "<leader>l", 'A<CR>for (size_t i = 0; i < n; ++i){<CR>}<CR><Esc>kk0fn')
 
 -- colorscheme -- possible name: POND --
-vim.o.termguicolors = true
+vim.opt.termguicolors = true
 vim.cmd [[ colorscheme default ]]
 vim.cmd [[ hi normal guibg=Black ]]
 vim.cmd [[ hi NormalFloat guibg=Black ]] -- ("K" pop-up window)
@@ -106,6 +104,7 @@ vim.cmd [[ hi StatusLineNC guibg=DarkMagenta guifg=White]] -- other statuslines
 vim.cmd [[ set pumheight=4 ]] -- how many suggestions in floating windows
 vim.cmd [[ hi Comment guifg=#00FF9F ]] -- acqua/green, NvimLightGreen
 vim.cmd [[ hi LineNr guifg=White ]]
+
 -- @fields require treesitter
 local white_fields = {
     "@variable", "@variable.parameter", "@variable.parameter.builtin",
@@ -187,7 +186,7 @@ require("lazy").setup {
                     ["<CR>"] = cmp.mapping.confirm { select = true },
                 },
                 sources = { 
-                    -- {name = "nvim_lsp"}, -- <c-x><c-o> for triggerign suggestions
+                    {name = "nvim_lsp"}, -- <c-x><c-o> for triggerign suggestions
                     {name = "buffer"}, 
                     {name = "path"}, 
                     {name = "snippets"}, 
