@@ -25,6 +25,11 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 -- readable errors (LSP): see <leader>d below
 vim.diagnostic.config({virtual_text = false, virtual_lines = false})
 vim.opt.winborder = "single"
+-- default file explorer (Netrw).
+---- no banner
+vim.g.netrw_banner = 0
+---- tree view
+vim.g.netrw_liststyle = 3
 
 -- [[remap land]] (M = meta = alt key)
 -- better cmd line
@@ -53,10 +58,10 @@ vim.keymap.set("n", "<C-Right>", "<cmd>vertical resize +3<CR>")
 vim.keymap.set("n", "<C-Down>", "<cmd>horizontal resize -3<CR>")
 vim.keymap.set("n", "<C-Up>", "<cmd>horizontal resize +3<CR>")
 -- [C]ompilation [M]ode / [C]ompile [M]e
--- set makeprg=... (escape spaces with \)
--- [] + q to go across errors
+-- set makeprg=... (escape spaces with \) ([] + q to go across errors)
 vim.keymap.set("n", "<leader>cm", "<cmd>make<CR>")
 vim.keymap.set("n", "<leader>co", "<cmd>copen<CR>")
+vim.keymap.set("n", "<leader>cc", "<cmd>cclose<CR>")
 -- [V]im [G]rep (internal search) shortcut
 vim.keymap.set("n", "<leader>vg", ":<C-f>ivimgrep//jg **/<Esc>6hi")
 -- leader + p for pasting and not losing yanked buffer
@@ -85,9 +90,13 @@ vim.keymap.set("i", "{", "{}<Esc>i")
 vim.keymap.set("i", '"', '""<Esc>i')
 -- the most basic snippets ever
 ---- go error handling
-vim.keymap.set("n", "<leader>e", 'A<CR>if err != nil {<CR>return nil, err<CR>}<Esc>')
+vim.keymap.set("n", "<leader>e", "A<CR>if err != nil {<CR>return nil, err<CR>}<Esc>")
 ---- c for loop
-vim.keymap.set("n", "<leader>l", 'A<CR>for (size_t i = 0; i < n; ++i){<CR>}<CR><Esc>kk0fn')
+vim.keymap.set("n", "<leader>l", "A<CR>for (size_t i = 0; i < n; ++i){<CR>}<CR><Esc>kk0fn")
+-- nvim terminal
+vim.keymap.set("n", "<leader>t", "<cmd>terminal<CR>A")
+-- [A]lign on = sign
+vim.keymap.set("v", "<leader>a", ":s/=/                      =/<CR>vip:s/\\%>20c *//<CR>")
 
 -- colorscheme -- possible name: POND --
 vim.opt.termguicolors = true
@@ -97,14 +106,18 @@ vim.cmd [[ hi NormalFloat guibg=Black ]] -- ("K" pop-up window)
 vim.cmd [[ hi Pmenu guibg=Indigo ]] -- native floating windows
 vim.cmd [[ hi PmenuThumb guibg=Indigo ]]
 vim.cmd [[ hi Search guibg=Indigo ]]-- search background
-vim.cmd [[ hi StatusLine guibg=Indigo guifg=White]] -- active window statusline
-vim.cmd [[ hi PmenuSel guifg=DarkMagenta guibg=White ]] -- selection background
-vim.cmd [[ hi CurSearch guibg=DarkMagenta guifg=White ]] -- search background
-vim.cmd [[ hi StatusLineNC guibg=DarkMagenta guifg=White]] -- other statuslines
-vim.cmd [[ set pumheight=4 ]] -- how many suggestions in floating windows
+vim.cmd [[ hi StatusLine guibg=Indigo guifg=NvimLightGrey2]] -- active window statusline
+vim.cmd [[ hi PmenuSel guifg=DarkMagenta guibg=NvimLightGrey2 ]] -- selection background
+vim.cmd [[ hi CurSearch guibg=DarkMagenta guifg=NvimLightGrey2 ]] -- search background
+vim.cmd [[ hi StatusLineNC guibg=DarkMagenta guifg=NvimLightGrey2]] -- other statuslines
+vim.cmd [[ set pumheight=3 ]] -- how many suggestions in floating windows
 vim.cmd [[ hi Comment guifg=#00FF9F ]] -- acqua/green, NvimLightGreen
-vim.cmd [[ hi LineNr guifg=White ]]
-
+vim.cmd [[ hi LineNr guifg=NvimLightGrey2 ]]
+vim.cmd [[ hi Statement guifg=Yellow gui=NONE ]]
+vim.cmd [[ hi PreProc guifg=Yellow ]]
+vim.cmd [[ hi String guifg=Lime ]]
+vim.cmd [[ hi Function guifg=NvimLightBlue ]]
+vim.cmd [[ hi Type guifg=DarkOrange ]]
 -- @fields require treesitter
 local white_fields = {
     "@variable", "@variable.parameter", "@variable.parameter.builtin",
@@ -140,10 +153,10 @@ local set_colors = function(fields, color)
 end
 set_colors(string_fields, "lime") -- default, lime
 set_colors(white_fields, "NvimLightGrey2") -- White
-set_colors(func_fields, "NvimLightCyan") -- NvimLightCyan, NvimLightGrey2
-set_colors(builtin_fields, "darkorange")
-set_colors(type_fields, "darkorange")
-set_colors(kw_fields, "yellow")
+set_colors(func_fields, "NvimLightBlue") -- NvimLightCyan, NvimLightGrey2, NvimLightBlue
+set_colors(builtin_fields, "DarkOrange")
+set_colors(type_fields, "DarkOrange")
+set_colors(kw_fields, "Yellow")
 
 -- here be plugins
 -- set up lazy vim for plugins (~/.local/share/nvim)
@@ -162,7 +175,7 @@ require("lazy").setup {
         build = ":TSUpdate",
         config = function()
             require("nvim-treesitter.configs").setup {
-                ensure_installed = { "c", "python", "markdown", "rust", "sql", "go", "cpp"},
+                ensure_installed = {"c", "python", "rust", "sql", "go", "cpp"},
                 auto_install = false, highlight = { enable = true }, indent = { enable = true },
                 textobjects = { select = { enable = true, lookahead = true,
                     keymaps = {
@@ -180,24 +193,16 @@ require("lazy").setup {
             cmp.setup {
                 completion = { completeopt = "menu,noinsert" },
                 mapping = cmp.mapping.preset.insert {
-                    ["<C-n>"] = cmp.mapping.select_next_item(),
-                    ["<C-p>"] = cmp.mapping.select_prev_item(),
-                    ["<C-y>"] = cmp.mapping.confirm { select = true },
-                    ["<CR>"] = cmp.mapping.confirm { select = true },
+                    ["<C-n>"] = cmp.mapping.select_next_item(), ["<C-p>"] = cmp.mapping.select_prev_item(),
+                    ["<C-y>"] = cmp.mapping.confirm { select = true }, ["<CR>"] = cmp.mapping.confirm { select = true },
                 },
-                sources = { 
-                    {name = "nvim_lsp"}, -- <c-x><c-o> for triggerign suggestions
-                    {name = "buffer"}, 
-                    {name = "path"}, 
-                    {name = "snippets"}, 
-                },
+                sources = {{name = "nvim_lsp"}, {name = "buffer"}, {name = "path"}, {name = "snippets"},},
             }
         end,
     },
     { -- LSP
         "neovim/nvim-lspconfig",
-        dependencies = { "williamboman/mason.nvim", "williamboman/mason-lspconfig.nvim",
-        "WhoIsSethDaniel/mason-tool-installer.nvim", },
+        dependencies = { "williamboman/mason.nvim", "williamboman/mason-lspconfig.nvim", "WhoIsSethDaniel/mason-tool-installer.nvim", },
         config = function()
             vim.api.nvim_create_autocmd("LspAttach", {
                 group = vim.api.nvim_create_augroup("kickstart-lsp-attach", { clear = true }),
