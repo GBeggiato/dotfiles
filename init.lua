@@ -29,7 +29,7 @@ vim.opt.winborder = "single"
 ---- no banner
 vim.g.netrw_banner = 0
 ---- tree view
-vim.g.netrw_liststyle = 3
+vim.g.netrw_liststyle = 3 -- 0: base, 1: date, 3: tree
 
 -- [[remap land]] (M = meta = alt key)
 -- better cmd line
@@ -41,7 +41,7 @@ vim.keymap.set({"n", "i", "v", "s", "x", "c", "o", "l"}, "<C-k>", "<Esc>")
 vim.keymap.set("t", "<C-k>", "<C-\\><C-N>")
 -- ESC working in terminal mode
 vim.keymap.set("t", "<Esc>", "<C-\\><C-N>")
--- [S]ubstitute 
+-- [S]ubstitute
 vim.keymap.set("v", "<leader>s", ":<C-f>asubstitute//gcI<Esc>3hi")
 vim.keymap.set("n", "<leader>s", "yiw:<C-f>a%substitute///gcI<Esc>5hpla")
 -- modify search path so it's recursive down
@@ -98,7 +98,7 @@ vim.keymap.set("n", "<leader>t", "<cmd>terminal<CR>A")
 -- [A]lign on = sign
 vim.keymap.set("v", "<leader>a", ":s/=/                      =/<CR>vip:s/\\%>20c *//<CR>")
 
--- colorscheme -- possible name: POND --
+-- colorscheme --
 vim.opt.termguicolors = true
 vim.cmd [[ colorscheme default ]]
 vim.cmd [[ hi normal guibg=Black ]]
@@ -114,49 +114,10 @@ vim.cmd [[ set pumheight=3 ]] -- how many suggestions in floating windows
 vim.cmd [[ hi Comment guifg=#00FF9F ]] -- acqua/green, NvimLightGreen
 vim.cmd [[ hi LineNr guifg=NvimLightGrey2 ]]
 vim.cmd [[ hi Statement guifg=Yellow gui=NONE ]]
-vim.cmd [[ hi PreProc guifg=Yellow ]]
+-- vim.cmd [[ hi PreProc guifg=Yellow ]]
 vim.cmd [[ hi String guifg=Lime ]]
 vim.cmd [[ hi Function guifg=NvimLightBlue ]]
 vim.cmd [[ hi Type guifg=DarkOrange ]]
--- @fields require treesitter
-local white_fields = {
-    "@variable", "@variable.parameter", "@variable.parameter.builtin",
-    "@variable.member", "@number", "@number.float", "@operator",
-    "@punctuation.delimiter", "@punctuation.bracket", "@punctuation.special",
-    "@module", "@module.builtin", "@constant",
-}
-local kw_fields = {
-    "@keyword", "@keyword.coroutine", "@keyword.function", "@keyword.operator",
-    "@keyword.import", "@keyword.type", "@keyword.modifier", "@keyword.repeat",
-    "@keyword.return", "@keyword.debug", "@keyword.exception",
-    "@keyword.conditional", "@keyword.conditional.ternary",
-    "@keyword.directive", "@keyword.directive.define", "@label",
-}
-local func_fields = {
-    "@attribute", "@attribute.builtin", "@property", "@function",
-    "@function.builtin", "@function.call", "@function.macro",
-    "@constant.macro", "@function.method", "@function.method.call",
-    "@constructor",
-}
-local string_fields = {
-    "@string", "@string.documentation", "@string.regexp", "@string.escape",
-    "@string.special", "@string.special.symbol", "@string.special.path",
-    "@string.special.url", "@character", "@character.special",
-    "@markup.heading", "@markup.heading.1", "@markup.heading.2",
-    "@markup.heading.3", "@markup.heading.4", "@markup.heading.5",
-    "@markup.heading.6",
-}
-local builtin_fields = { "@variable.builtin", "@constant.builtin", "@boolean", }
-local type_fields = { "@type", "@type.builtin", "@type.definition", }
-local set_colors = function(fields, color)
-    for _, f in ipairs(fields) do vim.api.nvim_set_hl(0, f, {fg=color, bold=false}) end
-end
-set_colors(string_fields, "lime") -- default, lime
-set_colors(white_fields, "NvimLightGrey2") -- White
-set_colors(func_fields, "NvimLightBlue") -- NvimLightCyan, NvimLightGrey2, NvimLightBlue
-set_colors(builtin_fields, "DarkOrange")
-set_colors(type_fields, "DarkOrange")
-set_colors(kw_fields, "Yellow")
 
 -- here be plugins
 -- set up lazy vim for plugins (~/.local/share/nvim)
@@ -169,43 +130,41 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 require("lazy").setup {
-    { -- Highlight, edit, and navigate code
-        "nvim-treesitter/nvim-treesitter",
-        dependencies = {"https://github.com/nvim-treesitter/nvim-treesitter-textobjects", },
-        build = ":TSUpdate",
-        config = function()
-            require("nvim-treesitter.configs").setup {
-                ensure_installed = {"c", "python", "rust", "sql", "go", "cpp"},
-                auto_install = false, highlight = { enable = true }, indent = { enable = true },
-                textobjects = { select = { enable = true, lookahead = true,
-                    keymaps = {
-                        ["if"] = "@function.inner", ["af"] = "@function.outer",
-                        ["ic"] = "@class.inner", ["ac"] = "@class.outer",
-                    },
-                }, },
-            }
-        end,
-    },
     { -- Autocompletion engine
-        "hrsh7th/nvim-cmp", event = "InsertEnter", dependencies = { "hrsh7th/cmp-nvim-lsp", },
+        "hrsh7th/nvim-cmp", event = "InsertEnter",
+        dependencies = { "hrsh7th/cmp-nvim-lsp", },
         config = function()
             local cmp = require("cmp")
             cmp.setup {
                 completion = { completeopt = "menu,noinsert" },
                 mapping = cmp.mapping.preset.insert {
-                    ["<C-n>"] = cmp.mapping.select_next_item(), ["<C-p>"] = cmp.mapping.select_prev_item(),
-                    ["<C-y>"] = cmp.mapping.confirm { select = true }, ["<CR>"] = cmp.mapping.confirm { select = true },
+                    ["<C-n>"] = cmp.mapping.select_next_item(),
+                    ["<C-p>"] = cmp.mapping.select_prev_item(),
+                    ["<C-y>"] = cmp.mapping.confirm { select = true },
+                    ["<CR>"] = cmp.mapping.confirm { select = true },
                 },
-                sources = {{name = "nvim_lsp"}, {name = "buffer"}, {name = "path"}, {name = "snippets"},},
+                sources = {
+                    {name = "nvim_lsp"},
+                    {name = "buffer"},
+                    {name = "path"},
+                    {name = "snippets"},
+                },
             }
         end,
     },
     { -- LSP
         "neovim/nvim-lspconfig",
-        dependencies = { "williamboman/mason.nvim", "williamboman/mason-lspconfig.nvim", "WhoIsSethDaniel/mason-tool-installer.nvim", },
+        dependencies = {
+            "williamboman/mason.nvim",
+            "williamboman/mason-lspconfig.nvim",
+            "WhoIsSethDaniel/mason-tool-installer.nvim",
+        },
         config = function()
             vim.api.nvim_create_autocmd("LspAttach", {
-                group = vim.api.nvim_create_augroup("kickstart-lsp-attach", { clear = true }),
+                group = vim.api.nvim_create_augroup(
+                    "kickstart-lsp-attach",
+                    { clear = true }
+                ),
                 callback = function(event)
                     vim.keymap.set("n", "K", vim.lsp.buf.hover, {buffer = event.buf})
                     vim.keymap.set("n", "<leader>r", vim.lsp.buf.rename, {buffer = event.buf})
@@ -214,7 +173,12 @@ require("lazy").setup {
                     vim.keymap.set("n","gr", vim.lsp.buf.references, {buffer = event.buf})
                 end,
             })
-            local servers = { pyright = {}, rust_analyzer = {}, clangd = {}, gopls = {}, }
+            local servers = {
+                pyright = {},
+                rust_analyzer = {},
+                clangd = {},
+                gopls = {},
+            }
             require("mason").setup()
             local ensure_installed = vim.tbl_keys(servers or {})
             require("mason-tool-installer").setup {ensure_installed = ensure_installed,}
@@ -224,10 +188,6 @@ require("lazy").setup {
                 function(server_name)
                     local server = servers[server_name] or {}
                     server.capabilities = vim.tbl_deep_extend("force", {}, caps, server.capabilities or {})
-                    -- disable semantic tokens to avoid color changes
-                    server.on_attach = function (client)
-                      client.server_capabilities.semanticTokensProvider = nil
-                    end
                     require("lspconfig")[server_name].setup(server)
                 end,
             }, }
