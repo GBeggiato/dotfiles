@@ -30,6 +30,8 @@ vim.opt.winborder = "single"
 vim.g.netrw_banner = 0
 ---- tree view
 vim.g.netrw_liststyle = 3 -- 0: base, 1: date, 3: tree
+-- how many suggestions in floating windows
+vim.opt.pumheight = 3
 
 -- [[remap land]] (M = meta = alt key)
 -- better cmd line
@@ -100,7 +102,6 @@ vim.keymap.set("n", "<leader>t", "<cmd>terminal<CR>A")
 vim.opt.termguicolors = true
 vim.cmd [[ colorscheme default ]]
 vim.cmd [[ hi normal guibg=Black ]]
-vim.cmd [[ hi NormalFloat guibg=Black ]] -- ("K" pop-up window)
 vim.cmd [[ hi Pmenu guibg=Indigo ]] -- native floating windows
 vim.cmd [[ hi PmenuThumb guibg=Indigo ]]
 vim.cmd [[ hi Search guibg=Indigo ]]-- search background
@@ -108,11 +109,9 @@ vim.cmd [[ hi StatusLine guibg=Indigo guifg=NvimLightGrey2]] -- active window st
 vim.cmd [[ hi PmenuSel guifg=DarkMagenta guibg=NvimLightGrey2 ]] -- selection background
 vim.cmd [[ hi CurSearch guibg=DarkMagenta guifg=NvimLightGrey2 ]] -- search background
 vim.cmd [[ hi StatusLineNC guibg=DarkMagenta guifg=NvimLightGrey2]] -- other statuslines
-vim.cmd [[ set pumheight=3 ]] -- how many suggestions in floating windows
 vim.cmd [[ hi Comment guifg=#00FF9F ]] -- acqua/green, NvimLightGreen
 vim.cmd [[ hi LineNr guifg=NvimLightGrey2 ]]
-vim.cmd [[ hi Statement guifg=Yellow gui=NONE ]]
--- vim.cmd [[ hi PreProc guifg=Yellow ]]
+vim.cmd [[ hi Statement guifg=Yellow gui=NONE ]] -- PreProc
 vim.cmd [[ hi String guifg=Lime ]]
 vim.cmd [[ hi Function guifg=NvimLightBlue ]]
 vim.cmd [[ hi Type guifg=DarkOrange ]]
