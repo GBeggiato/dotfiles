@@ -22,6 +22,7 @@ vim.api.nvim_create_autocmd("TextYankPost", {
     group = vim.api.nvim_create_augroup("YankHighlight", { clear = true }),
     pattern = "*",
 })
+
 -- readable errors (LSP): see <leader>d below
 vim.diagnostic.config({virtual_text = false, virtual_lines = false})
 vim.opt.winborder = "single"
@@ -43,9 +44,10 @@ vim.keymap.set({"n", "i", "v", "s", "x", "c", "o", "l"}, "<C-k>", "<Esc>")
 vim.keymap.set("t", "<C-k>", "<C-\\><C-N>")
 -- ESC working in terminal mode
 vim.keymap.set("t", "<Esc>", "<C-\\><C-N>")
--- [S]ubstitute
-vim.keymap.set("v", "<leader>s", ":<C-f>asubstitute//gcI<Esc>3hi")
-vim.keymap.set("n", "<leader>s", "yiw:<C-f>a%substitute///gcI<Esc>5hpla")
+-- [S]ubstitute in the visual area
+vim.keymap.set("v", "<leader>s", "q:asubstitute//gcI<Esc>3hi")
+-- and globally
+vim.keymap.set("n", "<leader>s", "yiwq:a%substitute///gcI<Esc>5hpla")
 -- modify search path so it's recursive down
 vim.opt.path = vim.opt.path + "**"
 -- [F]ind files from vim root
@@ -65,7 +67,7 @@ vim.keymap.set("n", "<leader>cm", "<cmd>make<CR>")
 vim.keymap.set("n", "<leader>co", "<cmd>copen<CR>")
 vim.keymap.set("n", "<leader>cc", "<cmd>cclose<CR>")
 -- [V]im [G]rep (internal search) shortcut
-vim.keymap.set("n", "<leader>vg", ":<C-f>ivimgrep//jg **/<Esc>6hi")
+vim.keymap.set("n", "<leader>vg", "q:ivimgrep//jg **/<Esc>6hi")
 -- leader + p for pasting and not losing yanked buffer
 vim.keymap.set("v", "<leader>p", "\"_dP")
 -- [*][S]urround with given thing
@@ -100,9 +102,11 @@ vim.keymap.set("n", "<leader>t", "<cmd>terminal<CR>A")
 
 -- colorscheme: Pond --
 vim.opt.termguicolors = true
+
 vim.cmd [[ colorscheme default ]]
 vim.cmd [[ hi normal guibg=Black ]]
 vim.cmd [[ hi Pmenu guibg=Indigo ]] -- native floating windows
+vim.cmd [[ hi NormalFloat guibg=Black ]] -- "K" floating windows
 vim.cmd [[ hi PmenuThumb guibg=Indigo ]]
 vim.cmd [[ hi Search guibg=Indigo ]]-- search background
 vim.cmd [[ hi StatusLine guibg=Indigo guifg=NvimLightGrey2]] -- active window statusline
@@ -185,6 +189,8 @@ require("lazy").setup {
                 function(server_name)
                     local server = servers[server_name] or {}
                     server.capabilities = vim.tbl_deep_extend("force", {}, caps, server.capabilities or {})
+                    -- disable semantic tokens to avoid color changes
+                    server.on_attach = function (client) client.server_capabilities.semanticTokensProvider = nil end
                     require("lspconfig")[server_name].setup(server)
                 end,
             }, }
@@ -217,9 +223,10 @@ vim.api.nvim_create_user_command(
         local last_line = opts.line2
         local separator = vim.fn.input('Enter alignment separator: ', '')
         if separator ~= '' then align_section(first_line, last_line, separator) end
-    end, 
+    end,
     { nargs = '?', range = true }
 )
 -- [A]lign on = (or other) sign
 vim.keymap.set('v', '<leader>a', ':Align<CR>', { silent = true })
-
+-- remove trailing whitespace
+vim.api.nvim_create_user_command('TrimTrailingWhiteSpace', function() vim.cmd([[%s/\s\+$//e]]) end, {})
