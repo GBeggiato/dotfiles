@@ -22,7 +22,6 @@ vim.api.nvim_create_autocmd("TextYankPost", {
     group = vim.api.nvim_create_augroup("YankHighlight", { clear = true }),
     pattern = "*",
 })
-
 -- readable errors (LSP): see <leader>d below
 vim.diagnostic.config({virtual_text = false, virtual_lines = false})
 vim.opt.winborder = "single"
@@ -35,8 +34,6 @@ vim.g.netrw_liststyle = 3 -- 0: base, 1: date, 3: tree
 vim.opt.pumheight = 3
 
 -- [[remap land]] (M = meta = alt key)
--- better cmd line
-vim.keymap.set({"n", "v"}, ":", "q:a")
 -- quick save
 vim.keymap.set("n", "<leader>w", "<cmd>update<CR>")
 -- Ctrl k as ESC
@@ -92,17 +89,11 @@ vim.keymap.set("i", "(", "()<Esc>i")
 vim.keymap.set("i", "[", "[]<Esc>i")
 vim.keymap.set("i", "{", "{}<Esc>i")
 vim.keymap.set("i", '"', '""<Esc>i')
--- the most basic snippets ever
----- go error handling
-vim.keymap.set("n", "<leader>e", "A<CR>if err != nil {<CR>return nil, err<CR>}<Esc>")
----- c for loop
-vim.keymap.set("n", "<leader>l", "A<CR>for (size_t i = 0; i < n; ++i){<CR>}<CR><Esc>kk0fn")
 -- nvim terminal
 vim.keymap.set("n", "<leader>t", "<cmd>terminal<CR>A")
 
 -- colorscheme: Pond --
 vim.opt.termguicolors = true
-
 vim.cmd [[ colorscheme default ]]
 vim.cmd [[ hi normal guibg=Black ]]
 vim.cmd [[ hi Pmenu guibg=Indigo ]] -- native floating windows
@@ -119,6 +110,7 @@ vim.cmd [[ hi Statement guifg=Yellow gui=NONE ]] -- PreProc
 vim.cmd [[ hi String guifg=Lime ]]
 vim.cmd [[ hi Function guifg=NvimLightBlue ]]
 vim.cmd [[ hi Type guifg=DarkOrange ]]
+vim.cmd [[ hi Special guifg=NvimLightGrey2 ]]
 
 -- here be plugins
 -- set up lazy vim for plugins (~/.local/share/nvim)
@@ -133,45 +125,38 @@ vim.opt.rtp:prepend(lazypath)
 require("lazy").setup {
     { -- Autocompletion engine
         "hrsh7th/nvim-cmp", event = "InsertEnter",
-        dependencies = { "hrsh7th/cmp-nvim-lsp", },
         config = function()
             local cmp = require("cmp")
             cmp.setup {
-                completion = { completeopt = "menu,noinsert" },
                 mapping = cmp.mapping.preset.insert {
                     ["<C-n>"] = cmp.mapping.select_next_item(),
                     ["<C-p>"] = cmp.mapping.select_prev_item(),
                     ["<C-y>"] = cmp.mapping.confirm { select = true },
-                    ["<CR>"] = cmp.mapping.confirm { select = true },
+                    ["<CR>"]  = cmp.mapping.confirm { select = true },
                 },
                 sources = {
-                    {name = "nvim_lsp"},
-                    {name = "buffer"},
-                    {name = "path"},
-                    {name = "snippets"},
+                    {name = "nvim_lsp"}, {name = "snippets"},
+                    {name = "buffer"}, {name = "path"},
                 },
+                completion = { completeopt = "menu,noinsert" },
             }
         end,
     },
     { -- LSP
         "neovim/nvim-lspconfig",
         dependencies = {
-            "williamboman/mason.nvim",
-            "williamboman/mason-lspconfig.nvim",
-            "WhoIsSethDaniel/mason-tool-installer.nvim",
+            "williamboman/mason.nvim", "williamboman/mason-lspconfig.nvim",
+            "WhoIsSethDaniel/mason-tool-installer.nvim", "hrsh7th/cmp-nvim-lsp",
         },
         config = function()
             vim.api.nvim_create_autocmd("LspAttach", {
-                group = vim.api.nvim_create_augroup(
-                    "kickstart-lsp-attach",
-                    { clear = true }
-                ),
+                group = vim.api.nvim_create_augroup("kickstart-lsp-attach", { clear = true }),
                 callback = function(event)
-                    vim.keymap.set("n", "K", vim.lsp.buf.hover, {buffer = event.buf})
+                    vim.keymap.set("n", "K",         vim.lsp.buf.hover, {buffer = event.buf})
                     vim.keymap.set("n", "<leader>r", vim.lsp.buf.rename, {buffer = event.buf})
-                    vim.keymap.set("n","gd", vim.lsp.buf.definition, {buffer = event.buf})
-                    vim.keymap.set("n","<leader>d", vim.diagnostic.open_float, {buffer = event.buf})
-                    vim.keymap.set("n","gr", vim.lsp.buf.references, {buffer = event.buf})
+                    vim.keymap.set("n", "gd",        vim.lsp.buf.definition, {buffer = event.buf})
+                    vim.keymap.set("n", "gr",        vim.lsp.buf.references, {buffer = event.buf})
+                    vim.keymap.set("n", "<leader>d", vim.diagnostic.open_float, {buffer = event.buf})
                 end,
             })
             local servers = {
@@ -189,8 +174,6 @@ require("lazy").setup {
                 function(server_name)
                     local server = servers[server_name] or {}
                     server.capabilities = vim.tbl_deep_extend("force", {}, caps, server.capabilities or {})
-                    -- disable semantic tokens to avoid color changes
-                    server.on_attach = function (client) client.server_capabilities.semanticTokensProvider = nil end
                     require("lspconfig")[server_name].setup(server)
                 end,
             }, }
@@ -228,5 +211,6 @@ vim.api.nvim_create_user_command(
 )
 -- [A]lign on = (or other) sign
 vim.keymap.set('v', '<leader>a', ':Align<CR>', { silent = true })
+
 -- remove trailing whitespace
-vim.api.nvim_create_user_command('TrimTrailingWhiteSpace', function() vim.cmd([[%s/\s\+$//e]]) end, {})
+vim.api.nvim_create_user_command('TRimTrailingWhiteSpace', function() vim.cmd([[%s/\s\+$//e]]) end, {})
