@@ -107,6 +107,7 @@ vim.cmd [[ hi StatusLineNC guibg=DarkMagenta guifg=NvimLightGrey2]] -- other sta
 vim.cmd [[ hi Comment guifg=#00FF9F ]] -- acqua/green, NvimLightGreen
 vim.cmd [[ hi LineNr guifg=NvimLightGrey2 ]]
 vim.cmd [[ hi Statement guifg=Yellow gui=NONE ]] -- PreProc
+vim.cmd [[ hi Boolean guifg=Yellow ]]
 vim.cmd [[ hi String guifg=Lime ]]
 vim.cmd [[ hi Function guifg=NvimLightBlue ]]
 vim.cmd [[ hi Type guifg=DarkOrange ]]
