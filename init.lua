@@ -89,6 +89,7 @@ vim.keymap.set("i", "(", "()<Esc>i")
 vim.keymap.set("i", "[", "[]<Esc>i")
 vim.keymap.set("i", "{", "{}<Esc>i")
 vim.keymap.set("i", '"', '""<Esc>i')
+vim.keymap.set("i", "'", "''<Esc>i")
 -- nvim terminal
 vim.keymap.set("n", "<leader>t", "<cmd>terminal<CR>A")
 
@@ -106,12 +107,46 @@ vim.cmd [[ hi CurSearch guibg=DarkMagenta guifg=NvimLightGrey2 ]] -- search back
 vim.cmd [[ hi StatusLineNC guibg=DarkMagenta guifg=NvimLightGrey2]] -- other statuslines
 vim.cmd [[ hi Comment guifg=#00FF9F ]] -- acqua/green, NvimLightGreen
 vim.cmd [[ hi LineNr guifg=NvimLightGrey2 ]]
-vim.cmd [[ hi Statement guifg=Yellow gui=NONE ]] -- PreProc
 vim.cmd [[ hi Boolean guifg=Yellow ]]
 vim.cmd [[ hi String guifg=Lime ]]
 vim.cmd [[ hi Function guifg=NvimLightBlue ]]
 vim.cmd [[ hi Type guifg=DarkOrange ]]
-vim.cmd [[ hi Special guifg=NvimLightGrey2 ]]
+vim.cmd [[ hi Statement guifg=Yellow gui=NONE ]]
+vim.cmd [[ hi Include guifg=Yellow ]]
+vim.cmd [[ hi Define guifg=Yellow ]]
+
+-- [A]lign
+local function align_section(first_line, last_line, sep)
+    local section = vim.api.nvim_buf_get_lines(0, first_line - 1, last_line, false)
+    local maxpos = 0
+    for _, line in ipairs(section) do
+        local pos = line:find(' *' .. sep)
+        if pos and pos > maxpos then maxpos = pos end
+    end
+    local function align_line(line)
+        local before, after = line:match('(.-)%s*(' .. sep .. '.*)')
+        if not before then return line end
+        local spaces = string.rep(' ', maxpos - #before)
+        return before .. spaces .. after
+    end
+    for i, line in ipairs(section) do section[i] = align_line(line, sep, maxpos) end
+    vim.api.nvim_buf_set_lines(0, first_line - 1, last_line, false, section)
+end
+vim.api.nvim_create_user_command(
+    'Align',
+    function(opts)
+        local first_line = opts.line1
+        local last_line = opts.line2
+        local separator = vim.fn.input('Enter alignment separator: ', '')
+        if separator ~= '' then align_section(first_line, last_line, separator) end
+    end,
+    { nargs = '?', range = true }
+)
+-- [A]lign on = (or other) sign
+vim.keymap.set('v', '<leader>a', ':Align<CR>', { silent = true })
+
+-- remove trailing whitespace
+vim.api.nvim_create_user_command('TRimTrailingWhiteSpace', function() vim.cmd([[%s/\s\+$//e]]) end, {})
 
 -- here be plugins
 -- set up lazy vim for plugins (~/.local/share/nvim)
@@ -181,37 +216,3 @@ require("lazy").setup {
         end,
     },
 }
-
--- more stuff
--- [A]lign
-local function align_section(first_line, last_line, sep)
-    local section = vim.api.nvim_buf_get_lines(0, first_line - 1, last_line, false)
-    local maxpos = 0
-    for _, line in ipairs(section) do
-        local pos = line:find(' *' .. sep)
-        if pos and pos > maxpos then maxpos = pos end
-    end
-    local function align_line(line)
-        local before, after = line:match('(.-)%s*(' .. sep .. '.*)')
-        if not before then return line end
-        local spaces = string.rep(' ', maxpos - #before)
-        return before .. spaces .. after
-    end
-    for i, line in ipairs(section) do section[i] = align_line(line, sep, maxpos) end
-    vim.api.nvim_buf_set_lines(0, first_line - 1, last_line, false, section)
-end
-vim.api.nvim_create_user_command(
-    'Align',
-    function(opts)
-        local first_line = opts.line1
-        local last_line = opts.line2
-        local separator = vim.fn.input('Enter alignment separator: ', '')
-        if separator ~= '' then align_section(first_line, last_line, separator) end
-    end,
-    { nargs = '?', range = true }
-)
--- [A]lign on = (or other) sign
-vim.keymap.set('v', '<leader>a', ':Align<CR>', { silent = true })
-
--- remove trailing whitespace
-vim.api.nvim_create_user_command('TRimTrailingWhiteSpace', function() vim.cmd([[%s/\s\+$//e]]) end, {})
