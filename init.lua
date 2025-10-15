@@ -1,39 +1,30 @@
-vim.g.mapleader = " "
-vim.g.maplocalleader = " "
-vim.opt.mouse = ""
-vim.opt.signcolumn = "yes:1" -- "no"
-vim.opt.number = true
+vim.g.mapleader        = " "
+vim.g.maplocalleader   = " "
+vim.opt.mouse          = ""
+vim.opt.signcolumn     = "yes:1"
+vim.opt.number         = true
 vim.opt.relativenumber = true
-vim.opt.guicursor = "a:block,a:blinkwait0" -- cursor always block, no blink
-vim.opt.wrap = true
-vim.opt.expandtab = true
-vim.opt.tabstop = 4
-vim.opt.shiftwidth = 4
-vim.opt.ignorecase = true
-vim.opt.smartcase = true
-vim.opt.hlsearch = true
-vim.opt.colorcolumn = "80"
-vim.opt.clipboard = "unnamedplus" -- sync vim and standard copy register
-vim.opt.scrolloff = 999 -- cursor always mid-screen
-vim.opt.virtualedit = "block" -- visual mode past end of line
--- [[ Highlight on yank ]]
-vim.api.nvim_create_autocmd("TextYankPost", {
-    callback = function() vim.highlight.on_yank() end,
-    group = vim.api.nvim_create_augroup("YankHighlight", { clear = true }),
-    pattern = "*",
-})
+vim.opt.guicursor      = "a:block,a:blinkwait0" -- cursor always block, no blink
+vim.opt.wrap           = true
+vim.opt.expandtab      = true
+vim.opt.tabstop        = 4
+vim.opt.shiftwidth     = 4
+vim.opt.ignorecase     = true
+vim.opt.smartcase      = true
+vim.opt.hlsearch       = true
+vim.opt.colorcolumn    = "80"
+vim.opt.clipboard      = "unnamedplus" -- sync vim and standard copy register
+vim.opt.scrolloff      = 999 -- cursor always mid-screen
+vim.opt.virtualedit    = "block" -- visual mode past end of line
+vim.opt.winborder      = "single"
+vim.g.netrw_liststyle  = 3 -- default file explorer (Netrw). 0: base, 1: date, 3: tree
+-- pop-up window dimensions
+vim.opt.pumheight      = 3
+vim.opt.pummaxwidth    = 14 -- for nvim-cmp as well
 -- readable errors (LSP): see <leader>d below
 vim.diagnostic.config({virtual_text = false, virtual_lines = false})
-vim.opt.winborder = "single"
--- default file explorer (Netrw).
----- no banner
-vim.g.netrw_banner = 0
----- tree view
-vim.g.netrw_liststyle = 3 -- 0: base, 1: date, 3: tree
--- how many suggestions in floating windows
-vim.opt.pumheight = 3
 
--- [[remap land]] (M = meta = alt key)
+------------------------------- [[remap land]] (M = meta = alt key) -------------------------------
 -- quick save
 vim.keymap.set("n", "<leader>w", "<cmd>update<CR>")
 -- Ctrl k as ESC
@@ -84,50 +75,40 @@ vim.keymap.set("i", "{}", "{}")
 vim.keymap.set("i", "(<CR>", "()<Esc>i<CR><Esc>O")
 vim.keymap.set("i", "[<CR>", "[]<Esc>i<CR><Esc>O")
 vim.keymap.set("i", "{<CR>", "{}<Esc>i<CR><Esc>O")
+vim.keymap.set("i", '"<CR>', '""<Esc>i<CR><Esc>O')
 ---- open and automatically close
 vim.keymap.set("i", "(", "()<Esc>i")
 vim.keymap.set("i", "[", "[]<Esc>i")
 vim.keymap.set("i", "{", "{}<Esc>i")
 vim.keymap.set("i", '"', '""<Esc>i')
-vim.keymap.set("i", "'", "''<Esc>i")
 -- nvim terminal
 vim.keymap.set("n", "<leader>t", "<cmd>terminal<CR>A")
+-- [N]orm
+vim.keymap.set("v", "<leader>n", ":norm ")
+-- remove trailing whitespace
+vim.api.nvim_create_user_command('TRimTrailingWhiteSpace', function() vim.cmd([[%s/\s\+$//e]]) end, {})
 
--- colorscheme: Pond --
-vim.opt.termguicolors = true
-vim.cmd [[ colorscheme default ]]
-vim.cmd [[ hi normal guibg=Black ]]
-vim.cmd [[ hi Pmenu guibg=Indigo ]] -- native floating windows
-vim.cmd [[ hi NormalFloat guibg=Black ]] -- "K" floating windows
-vim.cmd [[ hi PmenuThumb guibg=Indigo ]]
-vim.cmd [[ hi Search guibg=Indigo ]]-- search background
-vim.cmd [[ hi StatusLine guibg=Indigo guifg=NvimLightGrey2]] -- active window statusline
-vim.cmd [[ hi PmenuSel guifg=DarkMagenta guibg=NvimLightGrey2 ]] -- selection background
-vim.cmd [[ hi CurSearch guibg=DarkMagenta guifg=NvimLightGrey2 ]] -- search background
-vim.cmd [[ hi StatusLineNC guibg=DarkMagenta guifg=NvimLightGrey2]] -- other statuslines
-vim.cmd [[ hi Comment guifg=#00FF9F ]] -- acqua/green, NvimLightGreen
-vim.cmd [[ hi LineNr guifg=NvimLightGrey2 ]]
-vim.cmd [[ hi Boolean guifg=Yellow ]]
-vim.cmd [[ hi String guifg=Lime ]]
-vim.cmd [[ hi Function guifg=NvimLightBlue ]]
-vim.cmd [[ hi Type guifg=DarkOrange ]]
-vim.cmd [[ hi Statement guifg=Yellow gui=NONE ]]
-vim.cmd [[ hi Include guifg=Yellow ]]
-vim.cmd [[ hi Define guifg=Yellow ]]
+------------------------------- more stuff -------------------------------
+-- [[ Highlight on yank ]]
+vim.api.nvim_create_autocmd("TextYankPost", {
+    callback = function() vim.highlight.on_yank() end,
+    group = vim.api.nvim_create_augroup("YankHighlight", { clear = true }),
+    pattern = "*",
+})
 
 -- [A]lign
+local function align_line(line, sep, maxpos)
+    local before, after = line:match('(.-)%s*(' .. sep .. '.*)')
+    if not before then return line end
+    local spaces = string.rep(' ', maxpos - #before)
+    return before .. spaces .. after
+end
 local function align_section(first_line, last_line, sep)
     local section = vim.api.nvim_buf_get_lines(0, first_line - 1, last_line, false)
     local maxpos = 0
     for _, line in ipairs(section) do
         local pos = line:find(' *' .. sep)
         if pos and pos > maxpos then maxpos = pos end
-    end
-    local function align_line(line)
-        local before, after = line:match('(.-)%s*(' .. sep .. '.*)')
-        if not before then return line end
-        local spaces = string.rep(' ', maxpos - #before)
-        return before .. spaces .. after
     end
     for i, line in ipairs(section) do section[i] = align_line(line, sep, maxpos) end
     vim.api.nvim_buf_set_lines(0, first_line - 1, last_line, false, section)
@@ -145,10 +126,25 @@ vim.api.nvim_create_user_command(
 -- [A]lign on = (or other) sign
 vim.keymap.set('v', '<leader>a', ':Align<CR>', { silent = true })
 
--- remove trailing whitespace
-vim.api.nvim_create_user_command('TRimTrailingWhiteSpace', function() vim.cmd([[%s/\s\+$//e]]) end, {})
+------------------------------- colorscheme: POND -------------------------------
+vim.opt.termguicolors = true
+vim.cmd [[ colorscheme default ]]
+vim.api.nvim_set_hl(0, "Normal", {       fg = "NvimLightGrey2", bg = "Black" })
+vim.api.nvim_set_hl(0, "NormalFloat", {  fg = "NvimLightGrey2", bg = "Black" })
+vim.api.nvim_set_hl(0, "LineNr", {       fg = "NvimLightGrey3" })
+vim.api.nvim_set_hl(0, "Pmenu", {        fg = "NvimLightGrey2", bg = "Indigo" })
+vim.api.nvim_set_hl(0, "PmenuSel", {     fg = "NvimLightGrey2", bg = "DarkMagenta" })
+vim.api.nvim_set_hl(0, "StatusLine", {   fg = "NvimLightGrey2", bg = "Indigo" })
+vim.api.nvim_set_hl(0, "StatusLineNC", { fg = "NvimLightGrey2", bg = "DarkMagenta" })
+vim.api.nvim_set_hl(0, "Identifier", {   fg = "NvimLightGrey2" }) -- properties
+vim.api.nvim_set_hl(0, "Search", {       fg = "NvimLightGrey2", bg = "Indigo" })
+vim.api.nvim_set_hl(0, "CurSearch", {    fg = "NvimLightGrey2", bg = "DarkMagenta" })
+vim.api.nvim_set_hl(0, "Function", {     fg = "NvimLightBlue" })
+vim.api.nvim_set_hl(0, "Special", {      fg = "NvimLightBlue" })
+vim.api.nvim_set_hl(0, "Type", {         fg = "Lime" })
+vim.api.nvim_set_hl(0, "String", {       fg = "Lime" })
 
--- here be plugins
+------------------------------- here be plugins -------------------------------
 -- set up lazy vim for plugins (~/.local/share/nvim)
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
@@ -163,19 +159,28 @@ require("lazy").setup {
         "hrsh7th/nvim-cmp", event = "InsertEnter",
         config = function()
             local cmp = require("cmp")
-            cmp.setup {
+            cmp.setup({
+                completion = { completeopt = "menu,noinsert" , },
                 mapping = cmp.mapping.preset.insert {
                     ["<C-n>"] = cmp.mapping.select_next_item(),
                     ["<C-p>"] = cmp.mapping.select_prev_item(),
-                    ["<C-y>"] = cmp.mapping.confirm { select = true },
-                    ["<CR>"]  = cmp.mapping.confirm { select = true },
+                    ["<C-y>"] = cmp.mapping.confirm {select = true},
+                    ["<CR>"]  = cmp.mapping.confirm {select = true},
+                    ["<C-b>"] = cmp.mapping.scroll_docs(-4),
+                    ["<C-f>"] = cmp.mapping.scroll_docs(4),
                 },
-                sources = {
-                    {name = "nvim_lsp"}, {name = "snippets"},
-                    {name = "buffer"}, {name = "path"},
+                sources = { {name = "buffer", }, {name = "nvim_lsp", }, },
+                -- the following ops keep the suggestion menu short and nice so the docs are not squashed
+                window = {documentation = {max_height = 12, max_width = 60, border = "single",}}, --completion
+                formatting = {
+                    fields = {"abbr", "kind"}, -- menu (source path)
+                    format = function(_, vim_item)
+                        vim_item.abbr = string.sub(vim_item.abbr, 1, 14)
+                        vim_item.kind = string.sub(vim_item.kind, 1, 4)
+                        return vim_item
+                    end
                 },
-                completion = { completeopt = "menu,noinsert" },
-            }
+            })
         end,
     },
     { -- LSP
@@ -188,19 +193,16 @@ require("lazy").setup {
             vim.api.nvim_create_autocmd("LspAttach", {
                 group = vim.api.nvim_create_augroup("kickstart-lsp-attach", { clear = true }),
                 callback = function(event)
-                    vim.keymap.set("n", "K",         vim.lsp.buf.hover, {buffer = event.buf})
-                    vim.keymap.set("n", "<leader>r", vim.lsp.buf.rename, {buffer = event.buf})
-                    vim.keymap.set("n", "gd",        vim.lsp.buf.definition, {buffer = event.buf})
-                    vim.keymap.set("n", "gr",        vim.lsp.buf.references, {buffer = event.buf})
+                    -- https://neovim.io/doc/user/lsp.html#_defaults
+                    --             "n" "grn"         vim.lsp.buf.rename()
+                    --             "n" "grr"         vim.lsp.buf.references()
+                    --             "n" "gO"          vim.lsp.buf.document_symbol()
+                    vim.keymap.set("n", "K",         vim.lsp.buf.hover,         {buffer = event.buf})
+                    vim.keymap.set("n", "gd",        vim.lsp.buf.definition,    {buffer = event.buf})
                     vim.keymap.set("n", "<leader>d", vim.diagnostic.open_float, {buffer = event.buf})
                 end,
             })
-            local servers = {
-                pyright = {},
-                rust_analyzer = {},
-                clangd = {},
-                gopls = {},
-            }
+            local servers = { pyright = {}, rust_analyzer = {}, clangd = {}, gopls = {}, }
             require("mason").setup()
             local ensure_installed = vim.tbl_keys(servers or {})
             require("mason-tool-installer").setup {ensure_installed = ensure_installed,}
