@@ -16,13 +16,11 @@ vim.opt.colorcolumn    = "80"
 vim.opt.clipboard      = "unnamedplus" -- sync vim and standard copy register
 vim.opt.scrolloff      = 999 -- cursor always mid-screen
 vim.opt.virtualedit    = "block" -- visual mode past end of line
-vim.opt.winborder      = "single"
 vim.g.netrw_liststyle  = 3 -- default file explorer (Netrw). 0: base, 1: date, 3: tree
 -- pop-up window dimensions
 vim.opt.pumheight      = 3
-vim.opt.pummaxwidth    = 14 -- for nvim-cmp as well
--- readable errors (LSP): see <leader>d below
-vim.diagnostic.config({virtual_text = false, virtual_lines = false})
+vim.opt.pumwidth       = 24
+vim.opt.pummaxwidth    = 24
 
 ------------------------------- [[remap land]] (M = meta = alt key) -------------------------------
 -- quick save
@@ -45,10 +43,10 @@ vim.keymap.set("n", "<C-n>", "<cmd>t.|<CR>")
 -- open default file explorer (Netrw).
 vim.keymap.set("n", "-", "<cmd>Explore<CR>")
 -- resize splits
-vim.keymap.set("n", "<C-Left>", "<cmd>vertical resize -3<CR>")
-vim.keymap.set("n", "<C-Right>", "<cmd>vertical resize +3<CR>")
-vim.keymap.set("n", "<C-Down>", "<cmd>horizontal resize -3<CR>")
-vim.keymap.set("n", "<C-Up>", "<cmd>horizontal resize +3<CR>")
+vim.keymap.set("n", "<C-Left>", "  <cmd>vertical   resize -2<CR>")
+vim.keymap.set("n", "<C-Right>", " <cmd>vertical   resize +2<CR>")
+vim.keymap.set("n", "<C-Down>", "  <cmd>horizontal resize -2<CR>")
+vim.keymap.set("n", "<C-Up>", "    <cmd>horizontal resize +2<CR>")
 -- [C]ompilation [M]ode / [C]ompile [M]e
 -- set makeprg=... (escape spaces with \) ([] + q to go across errors)
 vim.keymap.set("n", "<leader>cm", "<cmd>make<CR>")
@@ -59,11 +57,11 @@ vim.keymap.set("n", "<leader>vg", "q:ivimgrep//jg **/<Esc>6hi")
 -- leader + p for pasting and not losing yanked buffer
 vim.keymap.set("v", "<leader>p", "\"_dP")
 -- [*][S]urround with given thing
-vim.keymap.set("v", "(s", "c(<C-r>\")<C-\\><C-N>%")
-vim.keymap.set("v", "[s", "c[<C-r>\"]<C-\\><C-N>%")
-vim.keymap.set("v", "{s", "c{<C-r>\"}<C-\\><C-N>%")
-vim.keymap.set("v", '"s', 'c"<C-r>\""<C-\\><C-N>%')
-vim.keymap.set("v", "'s", "c'<C-r>\"'<C-\\><C-N>%")
+vim.keymap.set("v", "(s", 'c(<C-r>")<Esc>%')
+vim.keymap.set("v", "[s", 'c[<C-r>"]<Esc>%')
+vim.keymap.set("v", "{s", 'c{<C-r>"}<Esc>%')
+vim.keymap.set("v", '"s', 'c"<C-r>""<Esc>%')
+vim.keymap.set("v", "'s", "c'<C-r>\"'<Esc>%")
 -- go [B]ack where you were [B]efore (the previous [B]uffer)
 vim.keymap.set("n", "<leader>b", "<cmd>b#<CR>")
 -- homemade autopairs
@@ -143,78 +141,6 @@ vim.api.nvim_set_hl(0, "Function", {     fg = "NvimLightBlue" })
 vim.api.nvim_set_hl(0, "Special", {      fg = "NvimLightBlue" })
 vim.api.nvim_set_hl(0, "Type", {         fg = "Lime" })
 vim.api.nvim_set_hl(0, "String", {       fg = "Lime" })
+vim.api.nvim_set_hl(0, "Boolean", {      fg = "Lime" })
+vim.api.nvim_set_hl(0, "Include", {      fg = "Lime" })
 
-------------------------------- here be plugins -------------------------------
--- set up lazy vim for plugins (~/.local/share/nvim)
-local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
-if not vim.loop.fs_stat(lazypath) then
-    vim.fn.system({
-        "git", "clone", "--filter=blob:none",
-        "https://github.com/folke/lazy.nvim.git", "--branch=stable", lazypath,
-    })
-end
-vim.opt.rtp:prepend(lazypath)
-require("lazy").setup {
-    { -- Autocompletion engine
-        "hrsh7th/nvim-cmp", event = "InsertEnter",
-        config = function()
-            local cmp = require("cmp")
-            cmp.setup({
-                completion = { completeopt = "menu,noinsert" , },
-                mapping = cmp.mapping.preset.insert {
-                    ["<C-n>"] = cmp.mapping.select_next_item(),
-                    ["<C-p>"] = cmp.mapping.select_prev_item(),
-                    ["<C-y>"] = cmp.mapping.confirm {select = true},
-                    ["<CR>"]  = cmp.mapping.confirm {select = true},
-                    ["<C-b>"] = cmp.mapping.scroll_docs(-4),
-                    ["<C-f>"] = cmp.mapping.scroll_docs(4),
-                },
-                sources = { {name = "buffer", }, {name = "nvim_lsp", }, },
-                -- the following ops keep the suggestion menu short and nice so the docs are not squashed
-                window = {documentation = {max_height = 12, max_width = 60, border = "single",}}, --completion
-                formatting = {
-                    fields = {"abbr", "kind"}, -- menu (source path)
-                    format = function(_, vim_item)
-                        vim_item.abbr = string.sub(vim_item.abbr, 1, 14)
-                        vim_item.kind = string.sub(vim_item.kind, 1, 4)
-                        return vim_item
-                    end
-                },
-            })
-        end,
-    },
-    { -- LSP
-        "neovim/nvim-lspconfig",
-        dependencies = {
-            "williamboman/mason.nvim", "williamboman/mason-lspconfig.nvim",
-            "WhoIsSethDaniel/mason-tool-installer.nvim", "hrsh7th/cmp-nvim-lsp",
-        },
-        config = function()
-            vim.api.nvim_create_autocmd("LspAttach", {
-                group = vim.api.nvim_create_augroup("kickstart-lsp-attach", { clear = true }),
-                callback = function(event)
-                    -- https://neovim.io/doc/user/lsp.html#_defaults
-                    --             "n" "grn"         vim.lsp.buf.rename()
-                    --             "n" "grr"         vim.lsp.buf.references()
-                    --             "n" "gO"          vim.lsp.buf.document_symbol()
-                    vim.keymap.set("n", "K",         vim.lsp.buf.hover,         {buffer = event.buf})
-                    vim.keymap.set("n", "gd",        vim.lsp.buf.definition,    {buffer = event.buf})
-                    vim.keymap.set("n", "<leader>d", vim.diagnostic.open_float, {buffer = event.buf})
-                end,
-            })
-            local servers = { pyright = {}, rust_analyzer = {}, clangd = {}, gopls = {}, }
-            require("mason").setup()
-            local ensure_installed = vim.tbl_keys(servers or {})
-            require("mason-tool-installer").setup {ensure_installed = ensure_installed,}
-            local caps = vim.lsp.protocol.make_client_capabilities()
-            caps = vim.tbl_deep_extend("force", caps, require("cmp_nvim_lsp").default_capabilities())
-            require("mason-lspconfig").setup { handlers = {
-                function(server_name)
-                    local server = servers[server_name] or {}
-                    server.capabilities = vim.tbl_deep_extend("force", {}, caps, server.capabilities or {})
-                    require("lspconfig")[server_name].setup(server)
-                end,
-            }, }
-        end,
-    },
-}
