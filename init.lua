@@ -1,6 +1,7 @@
 vim.g.mapleader        = " "
 vim.g.maplocalleader   = " "
 vim.opt.swapfile       = false
+vim.opt.shada          = "" -- forgets marks, registers, ...  Only for performance at startup, remove freely
 vim.opt.mouse          = "" -- fully disable to avoid touchpad issues
 vim.opt.signcolumn     = "yes:1"
 vim.opt.number         = true
@@ -85,6 +86,8 @@ vim.keymap.set("n", "<leader>t", "<cmd>terminal<CR>A")
 vim.keymap.set("v", "<leader>n", ":norm ")
 -- remove trailing whitespace
 vim.api.nvim_create_user_command('TRimTrailingWhiteSpace', function() vim.cmd([[%s/\s\+$//e]]) end, {})
+-- the most basic snippets ever
+vim.keymap.set("n", "<leader>l", 'A<CR>for (size_t i = 0; i < n; ++i){<CR>}<CR><Esc>kk0fn') ---- c for loop
 
 -- [[ Highlight on yank ]]
 vim.api.nvim_create_autocmd("TextYankPost", {
@@ -126,19 +129,16 @@ vim.keymap.set('v', '<leader>a', ':Align<CR>', { silent = true })
 ------------------------------- colorscheme: POND -------------------------------
 vim.opt.termguicolors = true
 vim.cmd [[ colorscheme default ]]
-vim.api.nvim_set_hl(0, "Normal", {       fg = "NvimLightGrey2", bg = "Black" })
-vim.api.nvim_set_hl(0, "NormalFloat", {  fg = "NvimLightGrey2", bg = "Black" })
-vim.api.nvim_set_hl(0, "LineNr", {       fg = "NvimLightGrey3" })
-vim.api.nvim_set_hl(0, "Pmenu", {        fg = "NvimLightGrey2", bg = "Indigo" })
-vim.api.nvim_set_hl(0, "PmenuSel", {     fg = "NvimLightGrey2", bg = "DarkMagenta" })
-vim.api.nvim_set_hl(0, "StatusLine", {   fg = "NvimLightGrey2", bg = "Indigo" })
-vim.api.nvim_set_hl(0, "StatusLineNC", { fg = "NvimLightGrey2", bg = "DarkMagenta" })
-vim.api.nvim_set_hl(0, "Search", {       fg = "NvimLightGrey2", bg = "Indigo" })
-vim.api.nvim_set_hl(0, "CurSearch", {    fg = "NvimLightGrey2", bg = "DarkMagenta" })
-vim.api.nvim_set_hl(0, "Identifier", {   fg = "NvimLightGrey2" }) -- properties
-vim.api.nvim_set_hl(0, "Type", {         fg = "Lime" })
-vim.api.nvim_set_hl(0, "Boolean", {      fg = "Lime" })
-vim.api.nvim_set_hl(0, "String", {       fg = "Lime" })
-vim.api.nvim_set_hl(0, "Function", {     fg = "NvimLightBlue" })
-vim.api.nvim_set_hl(0, "Special", {      fg = "NvimLightBlue" })
-vim.api.nvim_set_hl(0, "Include", {      link = "Statement"}) -- extra python keywords
+vim.api.nvim_set_hl(0, "Normal", {      fg = "NvimLightGrey2", bg = "Black" })
+vim.api.nvim_set_hl(0, "NormalFloat", { fg = "NvimLightGrey2", bg = "Black" })
+vim.api.nvim_set_hl(0, "LineNr", {      fg = "NvimLightGrey3" })
+vim.api.nvim_set_hl(0, "PmenuSel", {    fg = "NvimLightGrey2", bg = "DarkMagenta" })
+vim.api.nvim_set_hl(0, "Pmenu", {       fg = "NvimLightGrey2", bg = "Indigo" })
+vim.api.nvim_set_hl(0, "StatusLine", {  fg = "NvimLightGrey2", bg = "Indigo" })
+vim.api.nvim_set_hl(0, "Search", {      fg = "NvimLightGrey2", bg = "Indigo" })
+vim.api.nvim_set_hl(0, "CurSearch", {   fg = "NvimLightGrey2", bg = "DarkMagenta" })
+vim.api.nvim_set_hl(0, "Identifier", {  fg = "NvimLightGrey2" }) -- properties
+vim.api.nvim_set_hl(0, "Type", {        fg = "Lime" })
+vim.api.nvim_set_hl(0, "String", {      fg = "Lime" })
+vim.api.nvim_set_hl(0, "Boolean", {     fg = "NvimLightCyan" })
+vim.api.nvim_set_hl(0, "Include", {     link = "Statement"}) -- extra python keywords
