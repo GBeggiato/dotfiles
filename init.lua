@@ -88,6 +88,8 @@ vim.keymap.set("v", "<leader>n", ":norm ")
 vim.api.nvim_create_user_command('TRimTrailingWhiteSpace', function() vim.cmd([[%s/\s\+$//e]]) end, {})
 -- the most basic snippets ever
 vim.keymap.set("n", "<leader>l", 'A<CR>for (size_t i = 0; i < n; ++i){<CR>}<CR><Esc>kk0fn') ---- c for loop
+-- inverse of [J]oin
+vim.keymap.set("v", "<leader>j", ":substitute/ /<C-v><CR>/gc<CR>a")
 
 -- [[ Highlight on yank ]]
 vim.api.nvim_create_autocmd("TextYankPost", {
