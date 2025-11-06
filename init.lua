@@ -134,91 +134,102 @@ vim.cmd [[ colorscheme default ]]
 vim.api.nvim_set_hl(0, "Normal", {      fg = "NvimLightGrey2", bg = "Black" })
 vim.api.nvim_set_hl(0, "NormalFloat", { fg = "NvimLightGrey2", bg = "Black" })
 vim.api.nvim_set_hl(0, "LineNr", {      fg = "NvimLightGrey3" })
+vim.api.nvim_set_hl(0, "StatusLine", {  fg = "NvimLightGrey2", bg = "Indigo" })
 vim.api.nvim_set_hl(0, "PmenuSel", {    fg = "NvimLightGrey2", bg = "DarkMagenta" })
 vim.api.nvim_set_hl(0, "Pmenu", {       fg = "NvimLightGrey2", bg = "Indigo" })
-vim.api.nvim_set_hl(0, "StatusLine", {  fg = "NvimLightGrey2", bg = "Indigo" })
-vim.api.nvim_set_hl(0, "Search", {      fg = "NvimLightGrey2", bg = "Indigo" })
 vim.api.nvim_set_hl(0, "CurSearch", {   fg = "NvimLightGrey2", bg = "DarkMagenta" })
+vim.api.nvim_set_hl(0, "Search", {      fg = "NvimLightGrey2", bg = "Indigo" })
 vim.api.nvim_set_hl(0, "Identifier", {  fg = "NvimLightGrey2" }) -- properties
-vim.api.nvim_set_hl(0, "Type", {        fg = "Lime" })
-vim.api.nvim_set_hl(0, "String", {      fg = "Lime" })
 vim.api.nvim_set_hl(0, "Boolean", {     fg = "NvimLightCyan" })
-vim.api.nvim_set_hl(0, "Include", {     link = "Statement"}) -- extra python keywords
+vim.api.nvim_set_hl(0, "String", {      fg = "Lime" })
+vim.api.nvim_set_hl(0, "Type", {        fg = "Lime" })
+vim.api.nvim_set_hl(0, "Include", {     link = "Statement" }) -- extra python keywords
 
--- ------------------------------- here be plugins -------------------------------
--- vim.opt.winborder = "single"
--- -- readable errors (LSP): see <leader>d below
--- vim.diagnostic.config({virtual_text = false, virtual_lines = false})
--- -- set up lazy vim for plugins (~/.local/share/nvim)
--- local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
--- if not vim.loop.fs_stat(lazypath) then
---     vim.fn.system({
---         "git", "clone", "--filter=blob:none",
---         "https://github.com/folke/lazy.nvim.git", "--branch=stable", lazypath,
---     })
--- end
--- vim.opt.rtp:prepend(lazypath)
--- require("lazy").setup {
---     { -- Autocompletion engine
---         "hrsh7th/nvim-cmp", event = "InsertEnter",
---         config = function()
---             local cmp = require("cmp")
---             cmp.setup({
---                 completion = { completeopt = "menu,noinsert" , },
---                 mapping = cmp.mapping.preset.insert {
---                     ["<C-n>"] = cmp.mapping.select_next_item(),
---                     ["<C-p>"] = cmp.mapping.select_prev_item(),
---                     ["<C-y>"] = cmp.mapping.confirm {select = true},
---                     ["<CR>"]  = cmp.mapping.confirm {select = true},
---                     ["<C-b>"] = cmp.mapping.scroll_docs(-4),
---                     ["<C-f>"] = cmp.mapping.scroll_docs(4),
---                 },
---                 sources = { {name = "buffer", }, {name = "nvim_lsp", }, },
---                 -- the following ops keep the suggestion menu short and nice so the docs are not squashed
---                 window = {documentation = {max_height = 12, max_width = 60, border = "single",}}, --completion
---                 formatting = {
---                     fields = {"abbr", "kind"}, -- menu (source path)
---                     format = function(_, vim_item)
---                         vim_item.abbr = string.sub(vim_item.abbr, 1, 14)
---                         vim_item.kind = string.sub(vim_item.kind, 1, 4)
---                         return vim_item
---                     end
---                 },
---             })
---         end,
---     },
---     { -- LSP
---         "neovim/nvim-lspconfig",
---         dependencies = {
---             "williamboman/mason.nvim", "williamboman/mason-lspconfig.nvim",
---             "WhoIsSethDaniel/mason-tool-installer.nvim", "hrsh7th/cmp-nvim-lsp",
---         },
---         config = function()
---             vim.api.nvim_create_autocmd("LspAttach", {
---                 group = vim.api.nvim_create_augroup("kickstart-lsp-attach", { clear = true }),
---                 callback = function(event)
---                     -- https://neovim.io/doc/user/lsp.html#_defaults
---                     --             "n" "grn"         vim.lsp.buf.rename()
---                     --             "n" "grr"         vim.lsp.buf.references()
---                     --             "n" "gO"          vim.lsp.buf.document_symbol()
---                     vim.keymap.set("n", "K",         vim.lsp.buf.hover,         {buffer = event.buf})
---                     vim.keymap.set("n", "gd",        vim.lsp.buf.definition,    {buffer = event.buf})
---                     vim.keymap.set("n", "<leader>d", vim.diagnostic.open_float, {buffer = event.buf})
---                 end,
---             })
---             local servers = { pyright = {}, rust_analyzer = {}, clangd = {}, gopls = {}, }
---             require("mason").setup()
---             local ensure_installed = vim.tbl_keys(servers or {})
---             require("mason-tool-installer").setup {ensure_installed = ensure_installed,}
---             local caps = vim.lsp.protocol.make_client_capabilities()
---             caps = vim.tbl_deep_extend("force", caps, require("cmp_nvim_lsp").default_capabilities())
---             require("mason-lspconfig").setup { handlers = {
---                 function(server_name)
---                     local server = servers[server_name] or {}
---                     server.capabilities = vim.tbl_deep_extend("force", {}, caps, server.capabilities or {})
---                     require("lspconfig")[server_name].setup(server)
---                 end,
---             }, }
---         end,
---     },
--- }
+-- [[ launch with --noplugin option to skip this section ]]
+------------------------------- here be plugins -------------------------------
+vim.opt.winborder = "single"
+-- readable errors (LSP): see <leader>d below
+vim.diagnostic.config({virtual_text = false, virtual_lines = false})
+-- set up lazy vim for plugins (~/.local/share/nvim)
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not vim.loop.fs_stat(lazypath) then
+    vim.fn.system({
+        "git", "clone", "--filter=blob:none",
+        "https://github.com/folke/lazy.nvim.git", "--branch=stable", lazypath,
+    })
+end
+vim.opt.rtp:prepend(lazypath)
+require("lazy").setup {
+    { -- Autocompletion engine
+        "hrsh7th/nvim-cmp", event = "InsertEnter",
+        config = function()
+            local cmp = require("cmp")
+            cmp.setup({
+                completion = { completeopt = "menu,noinsert" , },
+                mapping = cmp.mapping.preset.insert {
+                    ["<C-n>"] = cmp.mapping.select_next_item(),
+                    ["<C-p>"] = cmp.mapping.select_prev_item(),
+                    ["<C-y>"] = cmp.mapping.confirm {select = true},
+                    ["<CR>"]  = cmp.mapping.confirm {select = true},
+                    ["<C-b>"] = cmp.mapping.scroll_docs(-4),
+                    ["<C-f>"] = cmp.mapping.scroll_docs(4),
+                },
+                sources = { 
+                    {name = "buffer", }, {name = "path", }, 
+                    -- {name = "nvim_lsp", }, -- for a quiet lsp experience
+                },
+                -- the following ops keep the suggestion menu short and nice so the docs are not squashed
+                window = {documentation = {max_height = 12, max_width = 60, border = "single",}}, --completion
+                formatting = {
+                    fields = {"abbr", "kind"}, -- menu (source path)
+                    format = function(_, vim_item)
+                        vim_item.abbr = string.sub(vim_item.abbr, 1, 14)
+                        vim_item.kind = string.sub(vim_item.kind, 1, 4)
+                        return vim_item
+                    end
+                },
+            })
+        end,
+    },
+    { -- LSP
+        "neovim/nvim-lspconfig",
+        dependencies = {
+            "williamboman/mason.nvim", "williamboman/mason-lspconfig.nvim",
+            "WhoIsSethDaniel/mason-tool-installer.nvim", "hrsh7th/cmp-nvim-lsp",
+        },
+        config = function()
+            vim.api.nvim_create_autocmd("LspAttach", {
+                group = vim.api.nvim_create_augroup("lsp-attach", { clear = true }),
+                callback = function(event)
+                    -- These GLOBAL keymaps are created unconditionally when Nvim starts:
+                    -- "gra" is mapped in Normal and Visual mode to |vim.lsp.buf.code_action()|
+                    -- "grn" is mapped in Normal            mode to |vim.lsp.buf.rename()|
+                    -- "grr" is mapped in Normal            mode to |vim.lsp.buf.references()|
+                    -- "gri" is mapped in Normal            mode to |vim.lsp.buf.implementation()|
+                    -- "gO" is mapped in Normal             mode to |vim.lsp.buf.document_symbol()|
+                    -- CTRL-S is mapped in Insert           mode to |vim.lsp.buf.signature_help()|
+                    vim.keymap.set("n", "gd",        vim.lsp.buf.definition,    {buffer = event.buf})
+                    vim.keymap.set("n", "K",         vim.lsp.buf.hover,         {buffer = event.buf})
+                    vim.keymap.set("n", "<leader>d", vim.diagnostic.open_float, {buffer = event.buf})
+                end,
+            })
+            local servers = { pyright = {}, rust_analyzer = {}, clangd = {}, gopls = {}, }
+            require("mason").setup()
+            local ensure_installed = vim.tbl_keys(servers or {})
+            require("mason-tool-installer").setup {ensure_installed = ensure_installed,}
+            local caps = vim.lsp.protocol.make_client_capabilities()
+            caps = vim.tbl_deep_extend("force", caps, require("cmp_nvim_lsp").default_capabilities())
+            require("mason-lspconfig").setup { handlers = {
+                function(server_name)
+                    local server = servers[server_name] or {}
+                    server.capabilities = vim.tbl_deep_extend("force", {}, caps, server.capabilities or {})
+                    require("lspconfig")[server_name].setup(server)
+                    -- disable semantic tokens to avoid color changes -- seems useless ...
+                    server.on_attach = function(client)
+                        client.server_capabilities.semanticTokensProvider = nil
+                    end
+                end,
+            }, }
+        end,
+    },
+}
