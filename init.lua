@@ -129,21 +129,24 @@ vim.api.nvim_create_user_command(
 vim.keymap.set('v', '<leader>a', ':Align<CR>', { silent = true })
 
 ------------------------------- colorscheme: POND -------------------------------
-
 vim.opt.termguicolors = true
-vim.cmd [[ colorscheme default ]] -- also habamax
-vim.api.nvim_set_hl(0, "Normal", {                            bg = "Black" })
-vim.api.nvim_set_hl(0, "Include", {    link = "Statement" }) -- extra python keywords
-vim.api.nvim_set_hl(0, "Identifier", { fg = "NvimLightGrey2" }) -- properties, struct fields
-vim.api.nvim_set_hl(0, "Type", {       fg = "Lime" })
-vim.api.nvim_set_hl(0, "Function", {   fg = "NvimLightBlue" })
-vim.api.nvim_set_hl(0, "Boolean", {    link = "Function" })
-vim.api.nvim_set_hl(0, "StatusLine", { fg = "NvimLightGrey2", bg = "Indigo" })
-vim.api.nvim_set_hl(0, "Pmenu", {      fg = "NvimLightGrey2", bg = "Indigo" })
-vim.api.nvim_set_hl(0, "PmenuSel", {   fg = "Black",          bg = "DarkYellow" })
-vim.api.nvim_set_hl(0, "Search", {     fg = "NvimLightGrey2", bg = "Indigo" })
-vim.api.nvim_set_hl(0, "CurSearch", {  fg = "Black",          bg = "DarkYellow" })
+vim.cmd [[ colorscheme default ]] -- also evening
+vim.api.nvim_set_hl(0, "LineNr", {         fg = "NvimLightGrey4" })
+vim.api.nvim_set_hl(0, "pythonInclude", {  link = "Statement" })
+vim.api.nvim_set_hl(0, "pythonOperator", { link = "Statement" })
+vim.api.nvim_set_hl(0, "Type", {           fg = "Lime" })
+vim.api.nvim_set_hl(0, "Identifier", {     link = "@variable" }) -- properties, struct fields
+vim.api.nvim_set_hl(0, "Special", {        fg = "NvimLightBlue" })
+vim.api.nvim_set_hl(0, "Boolean", {        link = "Function" })
+vim.api.nvim_set_hl(0, "Pmenu", {          fg = "NvimLightGrey2", bg = "Indigo" })
+vim.api.nvim_set_hl(0, "PmenuSel", {       fg = "Black",          bg = "DarkYellow" })
+vim.api.nvim_set_hl(0, "Search", {         link = "PMenu" })
+vim.api.nvim_set_hl(0, "CurSearch", {      link = "PmenuSel" })
+vim.api.nvim_set_hl(0, "StatusLine", {     link = "PMenu" })
 
+-- vim.api.nvim_set_hl(0, "String", {         fg = "Lime" })
+-- vim.api.nvim_set_hl(0, "Normal", {         fg = "NvimLightGrey2", bg = "Black" })
+-- vim.api.nvim_set_hl(0, "Function", {       fg = "NvimLightBlue" })
 -- -- [[ launch with --noplugin option to skip this section ]]
 -- ------------------------------- here be plugins -------------------------------
 -- vim.opt.winborder = "single"
