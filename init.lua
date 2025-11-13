@@ -18,7 +18,6 @@ vim.opt.clipboard      = "unnamedplus" -- sync vim and standard copy register
 vim.opt.scrolloff      = 99 -- cursor always mid-screen
 vim.opt.virtualedit    = "block" -- visual mode past end of line
 vim.g.netrw_liststyle  = 3 -- default file explorer (Netrw). 0: base, 1: date, 3: tree
--- pop-up window dimensions
 vim.opt.pumheight      = 3
 vim.o.timeoutlen       = 300
 
@@ -49,9 +48,8 @@ vim.keymap.set("n", "<C-Down>",  "<cmd>horizontal resize -2<CR>")
 vim.keymap.set("n", "<C-Up>",    "<cmd>horizontal resize +2<CR>")
 -- [C]ompilation [M]ode / [C]ompile [M]e
 -- set makeprg=... (escape spaces with \) ([] + q to go across errors)
-vim.keymap.set("n", "<leader>cm", "<cmd>make<CR>")
-vim.keymap.set("n", "<leader>co", "<cmd>copen<CR>")
-vim.keymap.set("n", "<leader>cc", "<cmd>cclose<CR>")
+vim.keymap.set("n", "<leader>m", "<cmd>make<CR>")
+vim.keymap.set("n", "<leader>c", "<cmd>copen<CR>")
 -- [V]im [G]rep (internal search) shortcut
 vim.keymap.set("n", "<leader>vg", "q:ivimgrep//jg **/<Esc>6hi")
 -- leader + p for pasting and not losing yanked buffer
@@ -144,6 +142,7 @@ _snippet("main", 'def main():\n\t$1\n\nif __name__ == "__main__":\n\tmain()') --
 ------------------------------- colorscheme: POND -------------------------------
 vim.opt.termguicolors = true
 vim.cmd [[ colorscheme default ]] -- also evening
+vim.api.nvim_set_hl(0, "Normal", {         fg = "NvimLightGrey2", bg = "Black"})
 vim.api.nvim_set_hl(0, "LineNr", {         fg = "NvimLightGrey4" })
 vim.api.nvim_set_hl(0, "pythonInclude", {  link = "Statement" })
 vim.api.nvim_set_hl(0, "pythonOperator", { link = "Statement" })
@@ -157,3 +156,4 @@ vim.api.nvim_set_hl(0, "PmenuSel", {       fg = "Black",          bg = "DarkYell
 vim.api.nvim_set_hl(0, "Search", {         link = "PMenu" })
 vim.api.nvim_set_hl(0, "CurSearch", {      link = "PmenuSel" })
 vim.api.nvim_set_hl(0, "StatusLine", {     link = "PMenu" })
+vim.api.nvim_set_hl(0, "Constant", {       fg = "Orange" })
