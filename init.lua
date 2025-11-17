@@ -123,8 +123,8 @@ vim.api.nvim_create_user_command(
 vim.keymap.set('v', '<leader>a', ':Align<CR>', { silent = true })
 
 ------------------------------- snippets ----------------------------------------
--- https://boltless.me/posts/neovim-config-without-plugins-2025/
 local function _expand_snippet(trigger, body)
+    -- https://boltless.me/posts/neovim-config-without-plugins-2025/
     local c = vim.fn.nr2char(vim.fn.getchar(0))
     -- Only accept "<C-]>" as a trigger key.
     if c ~= "" then vim.api.nvim_feedkeys(trigger .. c, "i", true)
@@ -136,15 +136,17 @@ local function _snippet(trigger, body)
     vim.keymap.set("ia", trigger, function() _expand_snippet(trigger, body) end, {})
 end
 _snippet("for",  "for (size_t ${1:i} = 0; $1 < ${2:n}; ++$1){\n\t$3\n}"     ) -- c for loop
-_snippet("main", 'def main():\n\t$1\n\nif __name__ == "__main__":\n\tmain()') -- python main
+_snippet("pymain", 'def main():\n\t$1\n\nif __name__ == "__main__":\n\tmain()') -- python main
 
 ------------------------------- colorscheme: POND -------------------------------
 vim.opt.termguicolors = true
 vim.cmd [[ colorscheme default ]] -- also evening
-vim.api.nvim_set_hl(0, "Normal", {         fg = "NvimLightGrey2", bg = "NvimDarkGrey2"})
-vim.api.nvim_set_hl(0, "Statement", {      fg = "Magenta" })
+vim.api.nvim_set_hl(0, "Normal", {         fg = "NvimLightGrey2", bg = "Black"})
+vim.api.nvim_set_hl(0, "Statement", {      fg =  "#aa89f7" }) -- tokyonight magenta="#bb9af7
+vim.api.nvim_set_hl(0, "String", {         fg = "LightGreen" })
 vim.api.nvim_set_hl(0, "Type", {           fg = "Lime" })
 vim.api.nvim_set_hl(0, "Function", {       fg = "NvimLightBlue" })
+vim.api.nvim_set_hl(0, "Constant", {       fg = "NvimLightCyan" })
 vim.api.nvim_set_hl(0, "Pmenu", {          fg = "NvimLightGrey2", bg = "Indigo" })
 vim.api.nvim_set_hl(0, "PmenuSel", {       fg = "Black",          bg = "DarkYellow" })
 vim.api.nvim_set_hl(0, "Identifier", {     link = "@variable" }) -- properties, struct fields
@@ -152,10 +154,7 @@ vim.api.nvim_set_hl(0, "LineNr", {         link = "Comment" })
 vim.api.nvim_set_hl(0, "SpecialComment", { link = "Comment" })
 vim.api.nvim_set_hl(0, "pythonInclude", {  link = "Statement" })
 vim.api.nvim_set_hl(0, "pythonOperator", { link = "Statement" })
-vim.api.nvim_set_hl(0, "String", {         link = "Type" })
-vim.api.nvim_set_hl(0, "Special", {        link = "Function" })
 vim.api.nvim_set_hl(0, "Boolean", {        link = "Function" })
-vim.api.nvim_set_hl(0, "Constant", {       link = "Special" })
 vim.api.nvim_set_hl(0, "StatusLine", {     link = "PMenu" })
 vim.api.nvim_set_hl(0, "Search", {         link = "PMenu" })
 vim.api.nvim_set_hl(0, "CurSearch", {      link = "PmenuSel" })
