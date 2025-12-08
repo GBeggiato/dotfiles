@@ -1,5 +1,5 @@
-vim.g.mapleader        = " "
-vim.g.maplocalleader   = " "
+vim.g.mapleader        = vim.keycode("<space>")
+vim.g.maplocalleader   = vim.keycode("<space>")
 vim.opt.swapfile       = false
 vim.opt.shada          = "" -- forgets marks, registers, ...  Only for performance at startup, remove freely
 vim.opt.mouse          = "" -- fully disable to avoid touchpad issues
@@ -17,7 +17,7 @@ vim.opt.colorcolumn    = "80"
 vim.opt.clipboard      = "unnamedplus" -- sync vim and standard copy register
 vim.opt.scrolloff      = 99 -- cursor always mid-screen
 vim.opt.virtualedit    = "block" -- visual mode past end of line
-vim.g.netrw_liststyle  = 3 -- default file explorer (Netrw). 0: base, 1: date, 3: tree
+vim.g.netrw_liststyle  = 1 -- default file explorer (Netrw). 0: base, 1: date, 3: tree
 vim.opt.pumheight      = 3
 vim.o.timeoutlen       = 300
 
@@ -135,8 +135,10 @@ end
 local function _snippet(trigger, body)
     vim.keymap.set("ia", trigger, function() _expand_snippet(trigger, body) end, {})
 end
-_snippet("for",  "for (size_t ${1:i} = 0; $1 < ${2:n}; ++$1){\n\t$3\n}"     ) -- c for loop
-_snippet("pymain", 'def main():\n\t$1\n\nif __name__ == "__main__":\n\tmain()') -- python main
+ -- c for loop
+_snippet("for", "for (size_t ${1:i} = 0; $1 < ${2:n}; ++$1){\n\t$3\n}")
+-- python main
+_snippet("pymain", 'def main():\n\t${1:print("Hello world")}\n\nif __name__ == "__main__":\n\tmain()')
 
 ------------------------------- colorscheme: POND -------------------------------
 vim.opt.termguicolors = true
@@ -149,6 +151,7 @@ vim.api.nvim_set_hl(0, "Function", {       fg = "NvimLightBlue" })
 vim.api.nvim_set_hl(0, "Constant", {       fg = "NvimLightCyan" })
 vim.api.nvim_set_hl(0, "Pmenu", {          fg = "NvimLightGrey2", bg = "Indigo" })
 vim.api.nvim_set_hl(0, "PmenuSel", {       fg = "Black",          bg = "DarkYellow" })
+vim.api.nvim_set_hl(0, "netrwMarkFile", {  fg = "Lime" })
 vim.api.nvim_set_hl(0, "Identifier", {     link = "@variable" }) -- properties, struct fields
 vim.api.nvim_set_hl(0, "LineNr", {         link = "Comment" })
 vim.api.nvim_set_hl(0, "SpecialComment", { link = "Comment" })
