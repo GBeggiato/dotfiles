@@ -1,7 +1,8 @@
+-------------------------------- basic behaviour -------------------------------
 vim.g.mapleader        = vim.keycode("<space>")
 vim.g.maplocalleader   = vim.keycode("<space>")
 vim.opt.swapfile       = false
-vim.opt.shada          = "" -- forgets marks, registers, ...  Only for performance at startup, remove freely
+vim.opt.shada          = "" -- forgets marks, registers
 vim.opt.mouse          = "" -- fully disable to avoid touchpad issues
 vim.opt.signcolumn     = "yes:1"
 vim.opt.number         = true
@@ -16,8 +17,8 @@ vim.api.nvim_create_autocmd("FileType", {
 vim.opt.expandtab      = true
 vim.opt.tabstop        = 4
 vim.opt.shiftwidth     = 4
-vim.opt.ignorecase     = true
-vim.opt.smartcase      = true
+-- vim.opt.ignorecase     = true
+-- vim.opt.smartcase      = true
 vim.opt.colorcolumn    = "80"
 vim.opt.clipboard      = "unnamedplus" -- sync vim and standard copy register
 vim.opt.scrolloff      = 99 -- cursor always mid-screen
@@ -26,10 +27,10 @@ vim.g.netrw_liststyle  = 1 -- default file explorer (Netrw). 0: base, 1: date, 3
 vim.opt.wildignore:append({ "*.o", "*.obj", "*.pyc" })
 vim.o.timeoutlen       = 400
 -- popup menu style
-vim.o.completeopt   = "menu,popup,nearest" -- (nearest: ctrl-p for words above, -n for words below)
-vim.opt.pumheight   = 3  -- 3 suggestions
-vim.opt.pumwidth    = 10 -- Minimum width
-vim.opt.pummaxwidth = 20 -- Maximum width (check MSW vim.cmd('set pumwidth=30') vim.cmd('set pummaxwidth=50'))
+vim.o.completeopt      = "menu,popup,nearest" -- (nearest: ctrl-p for words above, -n for words below)
+vim.opt.pumheight      = 3  -- 3 suggestions
+vim.opt.pumwidth       = 10 -- Minimum width
+vim.opt.pummaxwidth    = 20 -- Maximum width (check MSW vim.cmd('set pumwidth=30') vim.cmd('set pummaxwidth=50'))
 --------------------- [[remap land]] (M = meta = alt key) ----------------------
 -- quick save
 vim.keymap.set("n", "<leader>w", "<cmd>update<CR>")
@@ -89,9 +90,6 @@ vim.keymap.set("i", '"', '""<Esc>i')
 vim.keymap.set("n", "<leader>t", "<cmd>terminal<CR>A")
 -- [N]orm
 vim.keymap.set("v", "<leader>n", ":norm ")
--- Better indenting in visual mode
-vim.keymap.set("v", "<", "<gv")
-vim.keymap.set("v", ">", ">gv")
 ---------------- [[ [RM] remove trailing whitespace ]] -------------------------
 vim.api.nvim_create_user_command('TRimTrailingWhiteSpace', function() vim.cmd([[%substitute/\s\+$//e]]) end, {})
 ----------------------- [[ Highlight on yank ]] --------------------------------
@@ -147,29 +145,78 @@ local file_type = "FileType"
 vim.api.nvim_create_augroup(snippet_group, { clear = true })
 vim.api.nvim_create_autocmd(file_type, { group = snippet_group, pattern = "python",
     callback = function()
-        -- python main
-        _snippet("main", 'def main():\n\t${1:print("Hello world")}\n\nif __name__ == "__main__":\n\tmain()')
-        -- python function def
-        _snippet("def", 'def ${1:func}(${2}) -> ${3:None}:\n\t${4:body}')
-        -- python debub
-        _snippet("dbg", 'print(f"{$1 = }")')
+        _snippet("main", 'def main():\n\t${1:print("Hello world")}\n\n\nif __name__ == "__main__":\n\tmain()')
+        _snippet("def",  'def ${1:func}(${2}) -> ${3:None}:\n\t${4:body}')
+        _snippet("dbg",  'print(f"{$1 = }")')
     end
 })
 vim.api.nvim_create_autocmd(file_type, { group = snippet_group, pattern = {"c", "h", "cpp"},
     callback = function()
-        -- c for loop
         _snippet("for", "for (size_t ${1:i} = 0; $1 < ${2:n}; ++$1){\n\t$3\n}")
-        -- ifndef
         _snippet("ifn", '#ifndef ${1:NAME}\n#define $1 $2\n$3\n#endif // $1')
+        -- typedef struct
     end
 })
-
 ---------------------------------- colorscheme ---------------------------------
 vim.opt.termguicolors = true
 vim.cmd [[ colorscheme default ]]
-vim.api.nvim_set_hl(0, "Function", {       fg   = "NvimLightBlue" })
-vim.api.nvim_set_hl(0, "Type", {           fg   = "Lime" })
-vim.api.nvim_set_hl(0, "Constant", {       link = "Statement" })
+vim.api.nvim_set_hl(0, "Type",           { fg   = "Yellow2" })
+vim.api.nvim_set_hl(0, "Identifier",     { link = "@variable" })
 vim.api.nvim_set_hl(0, "pythonOperator", { link = "Statement" })
-vim.api.nvim_set_hl(0, "pythonInclude", {  link = "Statement" })
-vim.api.nvim_set_hl(0, "Identifier", {     link = "@variable" })
+vim.api.nvim_set_hl(0, "pythonInclude",  { link = "Statement" })
+vim.api.nvim_set_hl(0, "SpecialComment", { link = "Comment" })
+
+------------------------------- here be plugins -------------------------------
+vim.api.nvim_set_hl(0, "@type.builtin",  { link = "Type" })
+vim.api.nvim_set_hl(0, "Boolean",        { link = "Type" })
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not vim.loop.fs_stat(lazypath) then
+    vim.fn.system({
+        "git", "clone", "--filter=blob:none",
+        "https://github.com/folke/lazy.nvim.git",
+        "--branch=stable", lazypath, 
+    })
+end
+-- disable treesitter on large files
+local function should_disable_ts(bufnr) return vim.api.nvim_buf_line_count(bufnr) > 50000 end
+vim.opt.rtp:prepend(lazypath)
+require("lazy").setup {
+    { 
+        "nvim-treesitter/nvim-treesitter", 
+        dependencies = {"https://github.com/nvim-treesitter/nvim-treesitter-textobjects", },
+        build = ":TSUpdate",
+        config = function()
+            require("nvim-treesitter.configs").setup {
+                -- TODO: disable for large files 
+                auto_install = false, 
+                highlight = { 
+                    enable = true,
+                    disable = function(lang, bufnr) return should_disable_ts(bufnr) end,
+                },
+                indent = { 
+                    enable = true,
+                    disable = function(lang, bufnr) return should_disable_ts(bufnr) end,
+                },
+                textobjects = {
+                    select = { 
+                        enable = true,
+                        disable = function(lang, bufnr) return should_disable_ts(bufnr) end,
+                        lookahead = true,
+                        keymaps = {
+                            ["if"] = "@function.inner",    ["af"] = "@function.outer",
+                            ["ic"] = "@class.inner",       ["ac"] = "@class.outer",
+                            ["il"] = "@loop.inner",        ["al"] = "@loop.outer",
+                            ["ii"] = "@conditional.inner", ["ai"] = "@conditional.outer",
+                        }
+                    }, 
+                    swap = {
+                        enable = true,
+                        disable = function(lang, bufnr) return should_disable_ts(bufnr) end,
+                        swap_next     = { ["<leader>h"] = "@parameter.inner", },
+                        swap_previous = { ["<leader>H"] = "@parameter.inner", },
+                    },
+                }, 
+            } 
+        end,
+    },
+}

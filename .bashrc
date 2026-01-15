@@ -90,7 +90,6 @@ fi
 
 # some more ls aliases
 alias la='ls -ahlF --time-style=long-iso'
-alias desk='cd ~/Desktop'
 
 # Add an "alert" alias for long running commands.  Use like so:
 #   sleep 10; alert

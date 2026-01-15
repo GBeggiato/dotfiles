@@ -3,10 +3,10 @@
 # copy the stuff i want archived
 
 # bashrc
-cp ~/.bashrc .
+cp ~/.bashrc .bashrc
 
 # nvim
-cp ~/.config/nvim/init.lua .
+cp ~/.config/nvim/init.lua init.lua
 
 # i3
 cp ~/.config/i3/config i3config
