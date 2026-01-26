@@ -1,15 +1,15 @@
--------------------------------- basic behaviour -------------------------------
+-- basic behaviour -------------------------------------------------------------
 vim.g.mapleader        = vim.keycode("<space>")
 vim.g.maplocalleader   = vim.keycode("<space>")
 vim.opt.swapfile       = false
 vim.opt.shada          = "" -- forgets marks, registers
 vim.opt.mouse          = "" -- fully disable to avoid touchpad issues
-vim.opt.signcolumn     = "yes:1"
+vim.opt.signcolumn     = "no" -- yes:1 for diagnostics
 vim.opt.number         = true
 vim.opt.relativenumber = true
 vim.opt.guicursor      = "a:block,a:blinkwait0" -- cursor always block, no blink
+-- but set no wrap for quickfix window
 vim.opt.wrap           = true
--- Set no wrap for quickfix windows
 vim.api.nvim_create_autocmd("FileType", {
     group = vim.api.nvim_create_augroup("QuickfixSettings", { clear = true }),
     pattern = "qf", callback = function() vim.opt_local.wrap = false end
@@ -17,21 +17,18 @@ vim.api.nvim_create_autocmd("FileType", {
 vim.opt.expandtab      = true
 vim.opt.tabstop        = 4
 vim.opt.shiftwidth     = 4
--- vim.opt.ignorecase     = true
--- vim.opt.smartcase      = true
+vim.opt.ignorecase     = true
+vim.opt.smartcase      = true
 vim.opt.colorcolumn    = "80"
 vim.opt.clipboard      = "unnamedplus" -- sync vim and standard copy register
 vim.opt.scrolloff      = 99 -- cursor always mid-screen
 vim.opt.virtualedit    = "block" -- visual mode past end of line
-vim.g.netrw_liststyle  = 1 -- default file explorer (Netrw). 0: base, 1: date, 3: tree
+vim.g.netrw_liststyle  = 1
 vim.opt.wildignore:append({ "*.o", "*.obj", "*.pyc" })
 vim.o.timeoutlen       = 400
--- popup menu style
-vim.o.completeopt      = "menu,popup,nearest" -- (nearest: ctrl-p for words above, -n for words below)
-vim.opt.pumheight      = 3  -- 3 suggestions
-vim.opt.pumwidth       = 10 -- Minimum width
-vim.opt.pummaxwidth    = 20 -- Maximum width (check MSW vim.cmd('set pumwidth=30') vim.cmd('set pummaxwidth=50'))
---------------------- [[remap land]] (M = meta = alt key) ----------------------
+vim.o.completeopt      = "menu,popup,nearest"
+vim.opt.pumheight      = 3  -- how many suggestions to show
+-- [[remap land]] (M = meta = alt key)  ----------------------------------------
 -- quick save
 vim.keymap.set("n", "<leader>w", "<cmd>update<CR>")
 -- Ctrl k as ESC
@@ -80,25 +77,25 @@ vim.keymap.set("i", "{}", "{}")
 vim.keymap.set("i", "(<CR>", "()<Esc>i<CR><Esc>O")
 vim.keymap.set("i", "[<CR>", "[]<Esc>i<CR><Esc>O")
 vim.keymap.set("i", "{<CR>", "{}<Esc>i<CR><Esc>O")
-vim.keymap.set("i", '"<CR>', '""<Esc>i<CR><Esc>O')
 ---- open and automatically close
-vim.keymap.set("i", "(", "()<Esc>i")
-vim.keymap.set("i", "[", "[]<Esc>i")
-vim.keymap.set("i", "{", "{}<Esc>i")
-vim.keymap.set("i", '"', '""<Esc>i')
+vim.keymap.set("i", "(",  "()<Esc>i")
+vim.keymap.set("i", "[",  "[]<Esc>i")
+vim.keymap.set("i", "{",  "{}<Esc>i")
 -- nvim terminal
 vim.keymap.set("n", "<leader>t", "<cmd>terminal<CR>A")
 -- [N]orm
 vim.keymap.set("v", "<leader>n", ":norm ")
----------------- [[ [RM] remove trailing whitespace ]] -------------------------
-vim.api.nvim_create_user_command('TRimTrailingWhiteSpace', function() vim.cmd([[%substitute/\s\+$//e]]) end, {})
------------------------ [[ Highlight on yank ]] --------------------------------
+-- [[ [TR]im [TR]ailing whitespace ]] ------------------------------------------
+vim.api.nvim_create_user_command('TRimTrailingWhiteSpace',
+    function() vim.cmd([[%substitute/\s\+$//e]]) end, {}
+)
+-- [[ Highlight on yank ]] -----------------------------------------------------
 vim.api.nvim_create_autocmd("TextYankPost", {
     callback = function() vim.hl.on_yank() end,
     group = vim.api.nvim_create_augroup("YankHighlight", { clear = true }),
     pattern = "*",
 })
-------------------------------- [A]lign ----------------------------------------
+-- [A]lign ---------------------------------------------------------------------
 local function align_line(line, sep, maxpos)
     local before, after = line:match('(.-)%s*(' .. sep .. '.*)')
     if not before then return line end
@@ -120,20 +117,19 @@ vim.api.nvim_create_user_command(
     function(opts)
         local first_line = opts.line1
         local last_line = opts.line2
-        local separator = vim.fn.input('Enter alignment separator: ', '=')
+        local separator = vim.fn.input('Enter alignment separator: ', '')
         if separator ~= '' then align_section(first_line, last_line, separator) end
     end,
     { nargs = '?', range = true }
 )
 vim.keymap.set('v', '<leader>a', ':Align<CR>', { silent = true })
-------------------------------- snippets ----------------------------------------
+-- snippets --------------------------------------------------------------------
 local function _expand_snippet(trigger, body)
     -- https://boltless.me/posts/neovim-config-without-plugins-2025/
     local c = vim.fn.nr2char(vim.fn.getchar(0))
     -- Only accept "<C-]>" as a trigger key.
     if c ~= "" then vim.api.nvim_feedkeys(trigger .. c, "i", true)
-    -- once expanded, move between "nodes" with <tab>
-    else vim.snippet.expand(body)
+    else vim.snippet.expand(body) -- move between "nodes" with <tab>
     end
 end
 local function _snippet(trigger, body)
@@ -143,10 +139,10 @@ end
 local snippet_group = "SnippetGroup"
 local file_type = "FileType"
 vim.api.nvim_create_augroup(snippet_group, { clear = true })
-vim.api.nvim_create_autocmd(file_type, { group = snippet_group, pattern = "python",
+vim.api.nvim_create_autocmd(file_type, { group = snippet_group, pattern = {"python"},
     callback = function()
         _snippet("main", 'def main():\n\t${1:print("Hello world")}\n\n\nif __name__ == "__main__":\n\tmain()')
-        _snippet("def",  'def ${1:func}(${2}) -> ${3:None}:\n\t${4:body}')
+        _snippet("def",  'def ${1:func}(${2}) -> ${3:None}:\n\t${4}')
         _snippet("dbg",  'print(f"{$1 = }")')
     end
 })
@@ -154,53 +150,54 @@ vim.api.nvim_create_autocmd(file_type, { group = snippet_group, pattern = {"c", 
     callback = function()
         _snippet("for", "for (size_t ${1:i} = 0; $1 < ${2:n}; ++$1){\n\t$3\n}")
         _snippet("ifn", '#ifndef ${1:NAME}\n#define $1 $2\n$3\n#endif // $1')
-        -- typedef struct
     end
 })
----------------------------------- colorscheme ---------------------------------
-vim.opt.termguicolors = true
+vim.api.nvim_create_autocmd(file_type, { group = snippet_group, pattern = {"rust"},
+    callback = function()
+        _snippet("fn",    'fn ${1:name}(${2}) -> ${3} {\n\t${4}\n}')
+        _snippet("match", 'match $1 {\n\tOk($2) => {$3},\n\tErr(${4:error}) => {$5},\n\tSome($2) => {$3},\n\tNone => {$5},\n}')
+    end
+})
+-- colorscheme -----------------------------------------------------------------
 vim.cmd [[ colorscheme default ]]
+vim.api.nvim_set_hl(0, "Boolean",        { fg   = "Yellow2" })
+vim.api.nvim_set_hl(0, "Number",         { fg   = "Yellow2" })
 vim.api.nvim_set_hl(0, "Type",           { fg   = "Yellow2" })
 vim.api.nvim_set_hl(0, "Identifier",     { link = "@variable" })
+vim.api.nvim_set_hl(0, "SpecialComment", { link = "Comment" })
 vim.api.nvim_set_hl(0, "pythonOperator", { link = "Statement" })
 vim.api.nvim_set_hl(0, "pythonInclude",  { link = "Statement" })
-vim.api.nvim_set_hl(0, "SpecialComment", { link = "Comment" })
-
-------------------------------- here be plugins -------------------------------
 vim.api.nvim_set_hl(0, "@type.builtin",  { link = "Type" })
-vim.api.nvim_set_hl(0, "Boolean",        { link = "Type" })
+
+-- here be plugins -------------------------------------------------------------
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
     vim.fn.system({
         "git", "clone", "--filter=blob:none",
         "https://github.com/folke/lazy.nvim.git",
-        "--branch=stable", lazypath, 
+        "--branch=stable", lazypath,
     })
 end
--- disable treesitter on large files
-local function should_disable_ts(bufnr) return vim.api.nvim_buf_line_count(bufnr) > 50000 end
 vim.opt.rtp:prepend(lazypath)
+local function disable_ts(bufnr) return vim.api.nvim_buf_line_count(bufnr) > 8000 end
+local PLUGIN_FILES = { "c", "h", "cpp", "python", "rust", "go", "lua" }
 require("lazy").setup {
-    { 
-        "nvim-treesitter/nvim-treesitter", 
+    {
+        "nvim-treesitter/nvim-treesitter",
         dependencies = {"https://github.com/nvim-treesitter/nvim-treesitter-textobjects", },
-        build = ":TSUpdate",
+        ft = PLUGIN_FILES, build = ":TSUpdate", ensure_installed = PLUGIN_FILES,
         config = function()
             require("nvim-treesitter.configs").setup {
-                -- TODO: disable for large files 
-                auto_install = false, 
-                highlight = { 
-                    enable = true,
-                    disable = function(lang, bufnr) return should_disable_ts(bufnr) end,
+                auto_install = false,
+                highlight = { enable = true,
+                    disable = function(lang, bufnr) return disable_ts(bufnr) end,
                 },
-                indent = { 
-                    enable = true,
-                    disable = function(lang, bufnr) return should_disable_ts(bufnr) end,
+                indent = { enable = true,
+                    disable = function(lang, bufnr) return disable_ts(bufnr) end,
                 },
                 textobjects = {
-                    select = { 
-                        enable = true,
-                        disable = function(lang, bufnr) return should_disable_ts(bufnr) end,
+                    select = { enable = true,
+                        disable = function(lang, bufnr) return disable_ts(bufnr) end,
                         lookahead = true,
                         keymaps = {
                             ["if"] = "@function.inner",    ["af"] = "@function.outer",
@@ -208,15 +205,14 @@ require("lazy").setup {
                             ["il"] = "@loop.inner",        ["al"] = "@loop.outer",
                             ["ii"] = "@conditional.inner", ["ai"] = "@conditional.outer",
                         }
-                    }, 
-                    swap = {
-                        enable = true,
-                        disable = function(lang, bufnr) return should_disable_ts(bufnr) end,
-                        swap_next     = { ["<leader>h"] = "@parameter.inner", },
-                        swap_previous = { ["<leader>H"] = "@parameter.inner", },
                     },
-                }, 
-            } 
+                    swap = { enable = true,
+                        disable = function(lang, bufnr) return disable_ts(bufnr) end,
+                        swap_next     = { ["<C-j>"] = "@parameter.inner", },
+                        swap_previous = { ["<C-h>"] = "@parameter.inner", },
+                    },
+                },
+            }
         end,
     },
 }
