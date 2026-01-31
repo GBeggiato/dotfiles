@@ -81,6 +81,7 @@ vim.keymap.set("i", "{<CR>", "{}<Esc>i<CR><Esc>O")
 vim.keymap.set("i", "(",  "()<Esc>i")
 vim.keymap.set("i", "[",  "[]<Esc>i")
 vim.keymap.set("i", "{",  "{}<Esc>i")
+vim.keymap.set('i', '"',  '""<Esc>i')
 -- nvim terminal
 vim.keymap.set("n", "<leader>t", "<cmd>terminal<CR>A")
 -- [N]orm
@@ -159,60 +160,11 @@ vim.api.nvim_create_autocmd(file_type, { group = snippet_group, pattern = {"rust
     end
 })
 -- colorscheme -----------------------------------------------------------------
-vim.cmd [[ colorscheme default ]]
-vim.api.nvim_set_hl(0, "Boolean",        { fg   = "Yellow2" })
-vim.api.nvim_set_hl(0, "Number",         { fg   = "Yellow2" })
-vim.api.nvim_set_hl(0, "Type",           { fg   = "Yellow2" })
-vim.api.nvim_set_hl(0, "Identifier",     { link = "@variable" })
+vim.cmd [[ colorscheme default ]] -- Yellow3, SkyBlue2, afafff, 
+vim.api.nvim_set_hl(0, "PreProc",        { fg   = "MediumPurple1" }) -- afafff
+vim.api.nvim_set_hl(0, "Special",        { link = "Normal" })
+vim.api.nvim_set_hl(0, "Identifier",     { link = "Normal" })
 vim.api.nvim_set_hl(0, "SpecialComment", { link = "Comment" })
-vim.api.nvim_set_hl(0, "pythonOperator", { link = "Statement" })
-vim.api.nvim_set_hl(0, "pythonInclude",  { link = "Statement" })
-vim.api.nvim_set_hl(0, "@type.builtin",  { link = "Type" })
-
--- here be plugins -------------------------------------------------------------
-local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
-if not vim.loop.fs_stat(lazypath) then
-    vim.fn.system({
-        "git", "clone", "--filter=blob:none",
-        "https://github.com/folke/lazy.nvim.git",
-        "--branch=stable", lazypath,
-    })
-end
-vim.opt.rtp:prepend(lazypath)
-local function disable_ts(bufnr) return vim.api.nvim_buf_line_count(bufnr) > 8000 end
-local PLUGIN_FILES = { "c", "h", "cpp", "python", "rust", "go", "lua" }
-require("lazy").setup {
-    {
-        "nvim-treesitter/nvim-treesitter",
-        dependencies = {"https://github.com/nvim-treesitter/nvim-treesitter-textobjects", },
-        ft = PLUGIN_FILES, build = ":TSUpdate", ensure_installed = PLUGIN_FILES,
-        config = function()
-            require("nvim-treesitter.configs").setup {
-                auto_install = false,
-                highlight = { enable = true,
-                    disable = function(lang, bufnr) return disable_ts(bufnr) end,
-                },
-                indent = { enable = true,
-                    disable = function(lang, bufnr) return disable_ts(bufnr) end,
-                },
-                textobjects = {
-                    select = { enable = true,
-                        disable = function(lang, bufnr) return disable_ts(bufnr) end,
-                        lookahead = true,
-                        keymaps = {
-                            ["if"] = "@function.inner",    ["af"] = "@function.outer",
-                            ["ic"] = "@class.inner",       ["ac"] = "@class.outer",
-                            ["il"] = "@loop.inner",        ["al"] = "@loop.outer",
-                            ["ii"] = "@conditional.inner", ["ai"] = "@conditional.outer",
-                        }
-                    },
-                    swap = { enable = true,
-                        disable = function(lang, bufnr) return disable_ts(bufnr) end,
-                        swap_next     = { ["<C-j>"] = "@parameter.inner", },
-                        swap_previous = { ["<C-h>"] = "@parameter.inner", },
-                    },
-                },
-            }
-        end,
-    },
-}
+vim.api.nvim_set_hl(0, "PythonOperator", { link = "Statement" })
+vim.api.nvim_set_hl(0, "Number",         { link = "Statement" })
+vim.api.nvim_set_hl(0, "Type",           { link = "Function" })

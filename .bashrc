@@ -117,5 +117,7 @@ fi
 . "$HOME/.cargo/env"
 
 # MANUALLY ADDED
+## go
 export PATH=$PATH:/usr/local/go/bin
-
+## zig
+export PATH="$HOME/zig-linux-x86_64-0.15.2:$PATH"
