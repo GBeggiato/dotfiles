@@ -159,18 +159,15 @@ vim.api.nvim_create_autocmd(file_type, { group = snippet_group, pattern = {"rust
         _snippet("match", 'match $1 {\n\tOk($2) => {$3},\n\tErr(${4:error}) => {$5},\n\tSome($2) => {$3},\n\tNone => {$5},\n}')
     end
 })
--- colorscheme -----------------------------------------------------------------
--- vim.cmd [[ colorscheme default ]] -- Yellow3, SkyBlue2, afafff, 
--- vim.api.nvim_set_hl(0, "PreProc",        { fg   = "MediumPurple1" }) -- afafff
--- vim.api.nvim_set_hl(0, "Special",        { link = "Normal" })
--- vim.api.nvim_set_hl(0, "Identifier",     { link = "Normal" })
--- vim.api.nvim_set_hl(0, "SpecialComment", { link = "Comment" })
--- vim.api.nvim_set_hl(0, "PythonOperator", { link = "Statement" })
--- vim.api.nvim_set_hl(0, "Number",         { link = "Statement" })
--- vim.api.nvim_set_hl(0, "Type",           { link = "Function" })
--- colorscheme -----------------------------------------------------------------
-vim.cmd [[ colorscheme zaibatsu ]]
-vim.api.nvim_set_hl(0, "Pmenu",         { fg = "NvimLightGrey2", bg = "Indigo" })
-vim.api.nvim_set_hl(0, "PmenuMatch",    { link = "Pmenu"})
-vim.api.nvim_set_hl(0, "PmenuMatchSel", { link = "PmenuSel"})
-vim.api.nvim_set_hl(0, "MatchParen", { bg = "Green4" })
+-- colorscheme -- ZAIBATSU colors on DEFAULT canvas-----------------------------
+vim.cmd [[ colorscheme default ]]
+vim.api.nvim_set_hl(0, "PreProc",        { fg   = "#00afff" })
+vim.api.nvim_set_hl(0, "Statement",      { fg   = "#ffafff" })
+vim.api.nvim_set_hl(0, "Function",       { fg   = "#87ffff" })
+vim.api.nvim_set_hl(0, "Constant",       { fg   = "#ffff5f" })
+vim.api.nvim_set_hl(0, "Type",           { fg   = "#ff5faf" })
+vim.api.nvim_set_hl(0, "String",         { link = "Constant" })
+vim.api.nvim_set_hl(0, "Identifier",     { link = "Normal" })
+vim.api.nvim_set_hl(0, "Special",        { link = "Normal" })
+vim.api.nvim_set_hl(0, "SpecialComment", { link = "Comment" })
+vim.api.nvim_set_hl(0, "PythonOperator", { link = "Statement" })
