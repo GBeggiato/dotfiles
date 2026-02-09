@@ -8,8 +8,8 @@ vim.opt.signcolumn     = "no" -- yes:1 for diagnostics
 vim.opt.number         = true
 vim.opt.relativenumber = true
 vim.opt.guicursor      = "a:block,a:blinkwait0" -- cursor always block, no blink
--- but set no wrap for quickfix window
 vim.opt.wrap           = true
+-- but set no wrap for quickfix window
 vim.api.nvim_create_autocmd("FileType", {
     group = vim.api.nvim_create_augroup("QuickfixSettings", { clear = true }),
     pattern = "qf", callback = function() vim.opt_local.wrap = false end
@@ -69,19 +69,15 @@ vim.keymap.set("v", '"s', 'c"<C-r>""<Esc>%')
 -- go [B]ack where you were [B]efore (the previous [B]uffer)
 vim.keymap.set("n", "<leader>b", "<cmd>b#<CR>")
 -- homemade autopairs
----- manually open and close
-vim.keymap.set("i", "()", "()")
-vim.keymap.set("i", "[]", "[]")
-vim.keymap.set("i", "{}", "{}")
+---- open and automatically close
+vim.keymap.set("i", "((",  "()<Esc>i")
+vim.keymap.set("i", "[[",  "[]<Esc>i")
+vim.keymap.set("i", "{{",  "{}<Esc>i")
+vim.keymap.set('i', '""',  '""<Esc>i')
 ---- open and automatically close, on multiple lines
 vim.keymap.set("i", "(<CR>", "()<Esc>i<CR><Esc>O")
 vim.keymap.set("i", "[<CR>", "[]<Esc>i<CR><Esc>O")
 vim.keymap.set("i", "{<CR>", "{}<Esc>i<CR><Esc>O")
----- open and automatically close
-vim.keymap.set("i", "(",  "()<Esc>i")
-vim.keymap.set("i", "[",  "[]<Esc>i")
-vim.keymap.set("i", "{",  "{}<Esc>i")
-vim.keymap.set('i', '"',  '""<Esc>i')
 -- nvim terminal
 vim.keymap.set("n", "<leader>t", "<cmd>terminal<CR>A")
 -- [N]orm
@@ -136,14 +132,14 @@ end
 local function _snippet(trigger, body)
     vim.keymap.set("ia", trigger, function() _expand_snippet(trigger, body) end, {})
 end
--- organize snippets by file type
+-- organize snippets by file type (also: filetype-specific keymaps)
 local snippet_group = "SnippetGroup"
 local file_type = "FileType"
 vim.api.nvim_create_augroup(snippet_group, { clear = true })
 vim.api.nvim_create_autocmd(file_type, { group = snippet_group, pattern = {"python"},
     callback = function()
         _snippet("main", 'def main():\n\t${1:print("Hello world")}\n\n\nif __name__ == "__main__":\n\tmain()')
-        _snippet("def",  'def ${1:func}(${2}) -> ${3:None}:\n\t${4}')
+        _snippet("def",  'def ${1:func}($2) -> ${3:None}:\n\t$4')
         _snippet("dbg",  'print(f"{$1 = }")')
     end
 })
@@ -155,19 +151,26 @@ vim.api.nvim_create_autocmd(file_type, { group = snippet_group, pattern = {"c", 
 })
 vim.api.nvim_create_autocmd(file_type, { group = snippet_group, pattern = {"rust"},
     callback = function()
-        _snippet("fn",    'fn ${1:name}(${2}) -> ${3} {\n\t${4}\n}')
-        _snippet("match", 'match $1 {\n\tOk($2) => {$3},\n\tErr(${4:error}) => {$5},\n\tSome($2) => {$3},\n\tNone => {$5},\n}')
+        _snippet("fn",    'fn ${1:name}($2) -> $3 {\n\t$4\n}')
+        _snippet("match", [[
+match $1 {
+    Ok($2) => {$3},
+    Err(${4:err}) => {$5},
+    Some($2) => {$3},
+    None => {$5},
+}]]
+        )
     end
 })
--- colorscheme -- ZAIBATSU colors on DEFAULT canvas-----------------------------
-vim.cmd [[ colorscheme default ]]
+vim.api.nvim_create_autocmd(file_type, { group = snippet_group, pattern = {"go"},
+    callback = function()
+        _snippet("func", 'func ${1:name}($2) $3 {\n\t$4\n}')
+    end
+})
+-- colorscheme -----------------------------------------------------------------
+vim.cmd('colorscheme default')
 vim.api.nvim_set_hl(0, "PreProc",        { fg   = "#00afff" })
-vim.api.nvim_set_hl(0, "Statement",      { fg   = "#ffafff" })
-vim.api.nvim_set_hl(0, "Function",       { fg   = "#87ffff" })
-vim.api.nvim_set_hl(0, "Constant",       { fg   = "#ffff5f" })
-vim.api.nvim_set_hl(0, "Type",           { fg   = "#ff5faf" })
-vim.api.nvim_set_hl(0, "String",         { link = "Constant" })
+vim.api.nvim_set_hl(0, "Type",           { link = "Statement" })
 vim.api.nvim_set_hl(0, "Identifier",     { link = "Normal" })
-vim.api.nvim_set_hl(0, "Special",        { link = "Normal" })
 vim.api.nvim_set_hl(0, "SpecialComment", { link = "Comment" })
 vim.api.nvim_set_hl(0, "PythonOperator", { link = "Statement" })
