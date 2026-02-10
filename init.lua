@@ -169,7 +169,8 @@ vim.api.nvim_create_autocmd(file_type, { group = snippet_group, pattern = {"go"}
 })
 -- colorscheme -----------------------------------------------------------------
 vim.cmd('colorscheme default')
-vim.api.nvim_set_hl(0, "PreProc",        { fg   = "#00afff" })
+vim.api.nvim_set_hl(0, "Statement",      { fg   = "Gold" })
+vim.api.nvim_set_hl(0, "PreProc",        { fg   = "DeepSkyBlue" })
 vim.api.nvim_set_hl(0, "Type",           { link = "Statement" })
 vim.api.nvim_set_hl(0, "Identifier",     { link = "Normal" })
 vim.api.nvim_set_hl(0, "SpecialComment", { link = "Comment" })
