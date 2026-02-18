@@ -1,3 +1,11 @@
+-- colorscheme -----------------------------------------------------------------
+vim.cmd('colorscheme default')
+vim.api.nvim_set_hl(0, "Statement",      { fg   = "Yellow2" })
+vim.api.nvim_set_hl(0, "Type",           { link = "Statement" })
+vim.api.nvim_set_hl(0, "PreProc",        { link = "Special" })
+vim.api.nvim_set_hl(0, "Identifier",     { link = "Normal" })
+vim.api.nvim_set_hl(0, "SpecialComment", { link = "Comment" })
+vim.api.nvim_set_hl(0, "PythonOperator", { link = "Statement" })
 -- basic behaviour -------------------------------------------------------------
 vim.g.mapleader        = vim.keycode("<space>")
 vim.g.maplocalleader   = vim.keycode("<space>")
@@ -132,7 +140,7 @@ end
 local function _snippet(trigger, body)
     vim.keymap.set("ia", trigger, function() _expand_snippet(trigger, body) end, {})
 end
--- organize snippets by file type (also: filetype-specific keymaps)
+-- organize snippets by file type
 local snippet_group = "SnippetGroup"
 local file_type = "FileType"
 vim.api.nvim_create_augroup(snippet_group, { clear = true })
@@ -162,16 +170,22 @@ match $1 {
         )
     end
 })
-vim.api.nvim_create_autocmd(file_type, { group = snippet_group, pattern = {"go"},
+vim.api.nvim_create_autocmd(file_type, { group = snippet_group, pattern = {"go", "lua"},
     callback = function()
         _snippet("func", 'func ${1:name}($2) $3 {\n\t$4\n}')
+        _snippet("meth", 'func ($1) ${2:name}($3) $4 {\n\t$5\n}')
+        _snippet("call", '${1:x}, ${2:err} := ${3:name}($4)\nif $2 != nil {\n\treturn nil, $2\n}')
+        _snippet("ife",  'if ${1:err} != nil {\n\treturn nil, $1\n}')
+        _snippet("type", 'type ${1:name} ${2:struct} {\n\t$3\n}')
+        _snippet("for",  'for ${1:_}, $2 := range $3 {\n\t$4\n}')
     end
 })
--- colorscheme -----------------------------------------------------------------
-vim.cmd('colorscheme default')
-vim.api.nvim_set_hl(0, "Statement",      { fg   = "Gold" })
-vim.api.nvim_set_hl(0, "PreProc",        { fg   = "DeepSkyBlue" })
-vim.api.nvim_set_hl(0, "Type",           { link = "Statement" })
-vim.api.nvim_set_hl(0, "Identifier",     { link = "Normal" })
-vim.api.nvim_set_hl(0, "SpecialComment", { link = "Comment" })
-vim.api.nvim_set_hl(0, "PythonOperator", { link = "Statement" })
+-- filetype-specific keymaps ---------------------------------------------------
+local buf_enter = "BufEnter"
+local buf_leave = "BufLeave"
+vim.api.nvim_create_autocmd(buf_enter, { group = snippet_group, pattern = {"*.go"},
+    callback = function(ev) vim.keymap.set("i", ":", " := ") end
+})
+vim.api.nvim_create_autocmd(buf_leave, { group = snippet_group, pattern = {"*.go"},
+    callback = function(ev) vim.keymap.del("i", ":") end
+})
