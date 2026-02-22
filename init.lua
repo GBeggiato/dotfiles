@@ -1,11 +1,12 @@
 -- colorscheme -----------------------------------------------------------------
 vim.cmd('colorscheme default')
 vim.api.nvim_set_hl(0, "Statement",      { fg   = "Yellow2" })
-vim.api.nvim_set_hl(0, "Type",           { link = "Statement" })
-vim.api.nvim_set_hl(0, "PreProc",        { link = "Special" })
+vim.api.nvim_set_hl(0, "Type",           { fg   = "NvimLightCyan" })
+vim.api.nvim_set_hl(0, "Constant",       { link = "String" })
 vim.api.nvim_set_hl(0, "Identifier",     { link = "Normal" })
-vim.api.nvim_set_hl(0, "SpecialComment", { link = "Comment" })
+vim.api.nvim_set_hl(0, "PreProc",        { link = "Special" })
 vim.api.nvim_set_hl(0, "PythonOperator", { link = "Statement" })
+vim.api.nvim_set_hl(0, "SpecialComment", { link = "Comment" })
 -- basic behaviour -------------------------------------------------------------
 vim.g.mapleader        = vim.keycode("<space>")
 vim.g.maplocalleader   = vim.keycode("<space>")
@@ -17,11 +18,6 @@ vim.opt.number         = true
 vim.opt.relativenumber = true
 vim.opt.guicursor      = "a:block,a:blinkwait0" -- cursor always block, no blink
 vim.opt.wrap           = true
--- but set no wrap for quickfix window
-vim.api.nvim_create_autocmd("FileType", {
-    group = vim.api.nvim_create_augroup("QuickfixSettings", { clear = true }),
-    pattern = "qf", callback = function() vim.opt_local.wrap = false end
-})
 vim.opt.expandtab      = true
 vim.opt.tabstop        = 4
 vim.opt.shiftwidth     = 4
@@ -32,10 +28,10 @@ vim.opt.clipboard      = "unnamedplus" -- sync vim and standard copy register
 vim.opt.scrolloff      = 99 -- cursor always mid-screen
 vim.opt.virtualedit    = "block" -- visual mode past end of line
 vim.g.netrw_liststyle  = 1
-vim.opt.wildignore:append({ "*.o", "*.obj", "*.pyc" })
 vim.o.timeoutlen       = 400
 vim.o.completeopt      = "menu,popup,nearest"
 vim.opt.pumheight      = 3  -- how many suggestions to show
+vim.opt.wildignore:append({ "*.o", "*.obj", "*.pyc" })
 -- [[remap land]] (M = meta = alt key)  ----------------------------------------
 -- quick save
 vim.keymap.set("n", "<leader>w", "<cmd>update<CR>")
@@ -132,9 +128,9 @@ vim.keymap.set('v', '<leader>a', ':Align<CR>', { silent = true })
 local function _expand_snippet(trigger, body)
     -- https://boltless.me/posts/neovim-config-without-plugins-2025/
     local c = vim.fn.nr2char(vim.fn.getchar(0))
-    -- Only accept "<C-]>" as a trigger key.
-    if c ~= "" then vim.api.nvim_feedkeys(trigger .. c, "i", true)
-    else vim.snippet.expand(body) -- move between "nodes" with <tab>
+    -- Only accept "<C-]>" (or "]") as a trigger key.
+    if (c == "" or c == "]") then vim.snippet.expand(body) -- move between "nodes" with <tab>
+    else vim.api.nvim_feedkeys(trigger .. c, "i", true)
     end
 end
 local function _snippet(trigger, body)
@@ -170,22 +166,44 @@ match $1 {
         )
     end
 })
-vim.api.nvim_create_autocmd(file_type, { group = snippet_group, pattern = {"go", "lua"},
+vim.api.nvim_create_autocmd(file_type, { group = snippet_group, pattern = {"go"},
     callback = function()
-        _snippet("func", 'func ${1:name}($2) $3 {\n\t$4\n}')
-        _snippet("meth", 'func ($1) ${2:name}($3) $4 {\n\t$5\n}')
-        _snippet("call", '${1:x}, ${2:err} := ${3:name}($4)\nif $2 != nil {\n\treturn nil, $2\n}')
-        _snippet("ife",  'if ${1:err} != nil {\n\treturn nil, $1\n}')
-        _snippet("type", 'type ${1:name} ${2:struct} {\n\t$3\n}')
-        _snippet("for",  'for ${1:_}, $2 := range $3 {\n\t$4\n}')
+        _snippet("func",  'func ${1:name}($2) $3 {\n\t$4\n}')
+        _snippet("meth",  'func ($1) ${2:name}($3) $4 {\n\t$5\n}')
+        _snippet("call",  '${1:x}, ${2:err} := ${3:name}($4)\nif $2 != nil {\n\treturn nil, $2\n}')
+        _snippet("ife",   'if ${1:err} != ${2:nil} {\n\treturn ${3:nil}, $1\n}')
+        _snippet("range", 'for ${1:_}, $2 := range $3 {\n\t$4\n}')
+        _snippet("for",   'for ${1:i} := 0; $1 < ${2:n}; $1++ {\n\t$3\n}')
+        _snippet("app",   '$1 = append($1, $2)')
     end
 })
--- filetype-specific keymaps ---------------------------------------------------
-local buf_enter = "BufEnter"
-local buf_leave = "BufLeave"
-vim.api.nvim_create_autocmd(buf_enter, { group = snippet_group, pattern = {"*.go"},
-    callback = function(ev) vim.keymap.set("i", ":", " := ") end
-})
-vim.api.nvim_create_autocmd(buf_leave, { group = snippet_group, pattern = {"*.go"},
-    callback = function(ev) vim.keymap.del("i", ":") end
-})
+
+-- filetype-specific keymaps -- prepare any extra functionality needed ---------
+function python_insert_assertions()
+    local lines = vim.fn.getline(vim.fn.getpos("'<")[2], vim.fn.getpos("'>")[2])
+    local result = string.gsub(table.concat(lines, " "), "%s+", "")
+    -- NOTE: it fails on the first few calls, WHY ???
+    local start_pos, end_pos = result:find("%((.-)%)")
+    local inner = result:sub(start_pos + 1, end_pos - 1)
+    local parts = vim.split(inner, ",", { trimempty = true })
+    local lines_to_insert = {}
+    for _, part in ipairs(parts) do
+        local subparts = vim.split(part, ":", { trimempty = true })
+        local line = "    assert(isinstance(" .. subparts[1] .. ", " .. subparts[2].. "))"
+        table.insert(lines_to_insert, line)
+    end
+    local end_line = vim.fn.getpos("'>")[2]
+    vim.api.nvim_buf_set_lines(0, end_line, end_line, false, lines_to_insert)
+end
+
+-- filetype-specific keymaps -- automagically add stuff here -------------------
+local function filetype_keymap(pattern, mode, key, val)
+    vim.api.nvim_create_autocmd("BufEnter", { group = snippet_group, pattern = {pattern},
+        callback = function(ev) vim.keymap.set(mode, key, val) end
+    })
+    vim.api.nvim_create_autocmd("BufLeave", { group = snippet_group, pattern = {pattern},
+        callback = function(ev) vim.keymap.del(mode, key) end
+    })
+end
+filetype_keymap("*.go", "i", " :",        " := ")
+filetype_keymap("*.py", "v", "<leader>g", python_insert_assertions)
