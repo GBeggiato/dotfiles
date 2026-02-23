@@ -1,10 +1,11 @@
 -- colorscheme -----------------------------------------------------------------
 vim.cmd('colorscheme default')
-vim.api.nvim_set_hl(0, "Statement",      { fg   = "Yellow2" })
-vim.api.nvim_set_hl(0, "Type",           { fg   = "NvimLightCyan" })
+vim.api.nvim_set_hl(0, "Function",       { fg   = "NvimLightBlue" })
+vim.api.nvim_set_hl(0, "Type",           { link = "Function" })
+vim.api.nvim_set_hl(0, "PreProc",        { link = "Function" })
+vim.api.nvim_set_hl(0, "Special",        { link = "Function" })
 vim.api.nvim_set_hl(0, "Constant",       { link = "String" })
 vim.api.nvim_set_hl(0, "Identifier",     { link = "Normal" })
-vim.api.nvim_set_hl(0, "PreProc",        { link = "Special" })
 vim.api.nvim_set_hl(0, "PythonOperator", { link = "Statement" })
 vim.api.nvim_set_hl(0, "SpecialComment", { link = "Comment" })
 -- basic behaviour -------------------------------------------------------------
@@ -178,24 +179,6 @@ vim.api.nvim_create_autocmd(file_type, { group = snippet_group, pattern = {"go"}
     end
 })
 
--- filetype-specific keymaps -- prepare any extra functionality needed ---------
-function python_insert_assertions()
-    local lines = vim.fn.getline(vim.fn.getpos("'<")[2], vim.fn.getpos("'>")[2])
-    local result = string.gsub(table.concat(lines, " "), "%s+", "")
-    -- NOTE: it fails on the first few calls, WHY ???
-    local start_pos, end_pos = result:find("%((.-)%)")
-    local inner = result:sub(start_pos + 1, end_pos - 1)
-    local parts = vim.split(inner, ",", { trimempty = true })
-    local lines_to_insert = {}
-    for _, part in ipairs(parts) do
-        local subparts = vim.split(part, ":", { trimempty = true })
-        local line = "    assert(isinstance(" .. subparts[1] .. ", " .. subparts[2].. "))"
-        table.insert(lines_to_insert, line)
-    end
-    local end_line = vim.fn.getpos("'>")[2]
-    vim.api.nvim_buf_set_lines(0, end_line, end_line, false, lines_to_insert)
-end
-
 -- filetype-specific keymaps -- automagically add stuff here -------------------
 local function filetype_keymap(pattern, mode, key, val)
     vim.api.nvim_create_autocmd("BufEnter", { group = snippet_group, pattern = {pattern},
@@ -205,5 +188,5 @@ local function filetype_keymap(pattern, mode, key, val)
         callback = function(ev) vim.keymap.del(mode, key) end
     })
 end
-filetype_keymap("*.go", "i", " :",        " := ")
-filetype_keymap("*.py", "v", "<leader>g", python_insert_assertions)
+
+filetype_keymap("*.go", "i", " :", " := ")
