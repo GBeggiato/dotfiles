@@ -1,13 +1,4 @@
--- colorscheme -----------------------------------------------------------------
-vim.cmd('colorscheme default')
-vim.api.nvim_set_hl(0, "Function",       { fg   = "NvimLightBlue" })
-vim.api.nvim_set_hl(0, "Type",           { link = "Function" })
-vim.api.nvim_set_hl(0, "PreProc",        { link = "Function" })
-vim.api.nvim_set_hl(0, "Special",        { link = "Function" })
-vim.api.nvim_set_hl(0, "Constant",       { link = "String" })
-vim.api.nvim_set_hl(0, "Identifier",     { link = "Normal" })
-vim.api.nvim_set_hl(0, "PythonOperator", { link = "Statement" })
-vim.api.nvim_set_hl(0, "SpecialComment", { link = "Comment" })
+vim.cmd('colorscheme habamax')
 -- basic behaviour -------------------------------------------------------------
 vim.g.mapleader        = vim.keycode("<space>")
 vim.g.maplocalleader   = vim.keycode("<space>")
@@ -22,8 +13,8 @@ vim.opt.wrap           = true
 vim.opt.expandtab      = true
 vim.opt.tabstop        = 4
 vim.opt.shiftwidth     = 4
-vim.opt.ignorecase     = true
-vim.opt.smartcase      = true
+-- vim.opt.ignorecase     = true
+-- vim.opt.smartcase      = true
 vim.opt.colorcolumn    = "80"
 vim.opt.clipboard      = "unnamedplus" -- sync vim and standard copy register
 vim.opt.scrolloff      = 99 -- cursor always mid-screen
@@ -33,6 +24,8 @@ vim.o.timeoutlen       = 400
 vim.o.completeopt      = "menu,popup,nearest"
 vim.opt.pumheight      = 3  -- how many suggestions to show
 vim.opt.wildignore:append({ "*.o", "*.obj", "*.pyc" })
+-- vim.opt.undofile      = true                      -- Enable persistent undo
+-- vim.opt.undodir       = vim.fn.expand("~/.undodir") -- Set custom undo directory
 -- [[remap land]] (M = meta = alt key)  ----------------------------------------
 -- quick save
 vim.keymap.set("n", "<leader>w", "<cmd>update<CR>")
@@ -125,6 +118,7 @@ vim.api.nvim_create_user_command(
     { nargs = '?', range = true }
 )
 vim.keymap.set('v', '<leader>a', ':Align<CR>', { silent = true })
+
 -- snippets --------------------------------------------------------------------
 local function _expand_snippet(trigger, body)
     -- https://boltless.me/posts/neovim-config-without-plugins-2025/
@@ -141,6 +135,7 @@ end
 local snippet_group = "SnippetGroup"
 local file_type = "FileType"
 vim.api.nvim_create_augroup(snippet_group, { clear = true })
+
 vim.api.nvim_create_autocmd(file_type, { group = snippet_group, pattern = {"python"},
     callback = function()
         _snippet("main", 'def main():\n\t${1:print("Hello world")}\n\n\nif __name__ == "__main__":\n\tmain()')
@@ -150,9 +145,20 @@ vim.api.nvim_create_autocmd(file_type, { group = snippet_group, pattern = {"pyth
 })
 vim.api.nvim_create_autocmd(file_type, { group = snippet_group, pattern = {"c", "h", "cpp"},
     callback = function()
-        _snippet("for", "for (size_t ${1:i} = 0; $1 < ${2:n}; ++$1){\n\t$3\n}")
-        _snippet("ifn", '#ifndef ${1:NAME}\n#define $1 $2\n$3\n#endif // $1')
+        _snippet("for",    "for (size_t ${1:i} = 0; $1 < ${2:n}; ++$1){\n\t$3\n}")
+        _snippet("ifn",    '#ifndef ${1:NAME}\n#define $1 $2\n$3\n#endif // $1')
+        _snippet("malloc", [[
+${1:type} *${2:name} = malloc(sizeof(*$2)*${3:1});
+if ($2 == NULL) {
+    ${4:assert(false) && "malloc failed"};
+}
+free($2);
+]]
+)
     end
+})
+vim.api.nvim_create_autocmd(file_type, { group = snippet_group, pattern = {"html"},
+    callback = function() _snippet("t", '<$1>\n\t$2\n</$1>') end
 })
 vim.api.nvim_create_autocmd(file_type, { group = snippet_group, pattern = {"rust"},
     callback = function()
@@ -163,16 +169,16 @@ match $1 {
     Err(${4:err}) => {$5},
     Some($2) => {$3},
     None => {$5},
-}]]
-        )
+}
+]])
     end
 })
 vim.api.nvim_create_autocmd(file_type, { group = snippet_group, pattern = {"go"},
     callback = function()
         _snippet("func",  'func ${1:name}($2) $3 {\n\t$4\n}')
         _snippet("meth",  'func ($1) ${2:name}($3) $4 {\n\t$5\n}')
-        _snippet("call",  '${1:x}, ${2:err} := ${3:name}($4)\nif $2 != nil {\n\treturn nil, $2\n}')
-        _snippet("ife",   'if ${1:err} != ${2:nil} {\n\treturn ${3:nil}, $1\n}')
+        _snippet("call",  '${1:x}, ${2:err} := ${3:name}($4)\nif $2 != nil {\n\t${5:return nil, err}\n}')
+        _snippet("ife",   'if ${1:err} != nil {\n\t${2:return nil, err}\n}')
         _snippet("range", 'for ${1:_}, $2 := range $3 {\n\t$4\n}')
         _snippet("for",   'for ${1:i} := 0; $1 < ${2:n}; $1++ {\n\t$3\n}')
         _snippet("app",   '$1 = append($1, $2)')
@@ -190,3 +196,4 @@ local function filetype_keymap(pattern, mode, key, val)
 end
 
 filetype_keymap("*.go", "i", " :", " := ")
+filetype_keymap("*.rs", "i", "<<", "<><Esc>i")
