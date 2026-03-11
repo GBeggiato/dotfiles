@@ -1,7 +1,9 @@
 vim.cmd('colorscheme habamax')
+
 -- basic behaviour -------------------------------------------------------------
 vim.g.mapleader        = vim.keycode("<space>")
 vim.g.maplocalleader   = vim.keycode("<space>")
+vim.opt.laststatus     = 1
 vim.opt.swapfile       = false
 vim.opt.shada          = "" -- forgets marks, registers
 vim.opt.mouse          = "" -- fully disable to avoid touchpad issues
@@ -13,8 +15,6 @@ vim.opt.wrap           = true
 vim.opt.expandtab      = true
 vim.opt.tabstop        = 4
 vim.opt.shiftwidth     = 4
--- vim.opt.ignorecase     = true
--- vim.opt.smartcase      = true
 vim.opt.colorcolumn    = "80"
 vim.opt.clipboard      = "unnamedplus" -- sync vim and standard copy register
 vim.opt.scrolloff      = 99 -- cursor always mid-screen
@@ -24,8 +24,7 @@ vim.o.timeoutlen       = 400
 vim.o.completeopt      = "menu,popup,nearest"
 vim.opt.pumheight      = 3  -- how many suggestions to show
 vim.opt.wildignore:append({ "*.o", "*.obj", "*.pyc" })
--- vim.opt.undofile      = true                      -- Enable persistent undo
--- vim.opt.undodir       = vim.fn.expand("~/.undodir") -- Set custom undo directory
+
 -- [[remap land]] (M = meta = alt key)  ----------------------------------------
 -- quick save
 vim.keymap.set("n", "<leader>w", "<cmd>update<CR>")
@@ -36,6 +35,8 @@ vim.keymap.set("t", "<C-k>", "<C-\\><C-N>")
 vim.keymap.set("t", "<Esc>", "<C-\\><C-N>")
 -- [S]ubstitute in the visual area
 vim.keymap.set("v", "<leader>s", "q:asubstitute//gcI<Esc>3hi")
+-- with preview
+vim.keymap.set({"v", "x"}, "<C-s>", [[<Esc>:'<,'>s/\V]])
 -- and globally
 vim.keymap.set("n", "<leader>s", "yiwq:a%substitute///gcI<Esc>5hpla")
 -- modify search path so it's recursive down
@@ -80,16 +81,19 @@ vim.keymap.set("i", "{<CR>", "{}<Esc>i<CR><Esc>O")
 vim.keymap.set("n", "<leader>t", "<cmd>terminal<CR>A")
 -- [N]orm
 vim.keymap.set("v", "<leader>n", ":norm ")
+
 -- [[ [TR]im [TR]ailing whitespace ]] ------------------------------------------
 vim.api.nvim_create_user_command('TRimTrailingWhiteSpace',
     function() vim.cmd([[%substitute/\s\+$//e]]) end, {}
 )
+
 -- [[ Highlight on yank ]] -----------------------------------------------------
 vim.api.nvim_create_autocmd("TextYankPost", {
     callback = function() vim.hl.on_yank() end,
     group = vim.api.nvim_create_augroup("YankHighlight", { clear = true }),
     pattern = "*",
 })
+
 -- [A]lign ---------------------------------------------------------------------
 local function align_line(line, sep, maxpos)
     local before, after = line:match('(.-)%s*(' .. sep .. '.*)')
@@ -124,7 +128,7 @@ local function _expand_snippet(trigger, body)
     -- https://boltless.me/posts/neovim-config-without-plugins-2025/
     local c = vim.fn.nr2char(vim.fn.getchar(0))
     -- Only accept "<C-]>" (or "]") as a trigger key.
-    if (c == "" or c == "]") then vim.snippet.expand(body) -- move between "nodes" with <tab>
+    if (c == "" or c == "]") then vim.snippet.expand(body) 
     else vim.api.nvim_feedkeys(trigger .. c, "i", true)
     end
 end
@@ -135,7 +139,6 @@ end
 local snippet_group = "SnippetGroup"
 local file_type = "FileType"
 vim.api.nvim_create_augroup(snippet_group, { clear = true })
-
 vim.api.nvim_create_autocmd(file_type, { group = snippet_group, pattern = {"python"},
     callback = function()
         _snippet("main", 'def main():\n\t${1:print("Hello world")}\n\n\nif __name__ == "__main__":\n\tmain()')
@@ -171,6 +174,7 @@ match $1 {
     None => {$5},
 }
 ]])
+        _snippet("let",   'let $1 = $2;')
     end
 })
 vim.api.nvim_create_autocmd(file_type, { group = snippet_group, pattern = {"go"},
@@ -194,6 +198,7 @@ local function filetype_keymap(pattern, mode, key, val)
         callback = function(ev) vim.keymap.del(mode, key) end
     })
 end
-
-filetype_keymap("*.go", "i", " :", " := ")
+filetype_keymap("*.go", "i", ":", " := ")
 filetype_keymap("*.rs", "i", "<<", "<><Esc>i")
+filetype_keymap("*.c",  "i", "/*", "/**/<Esc>hi")
+filetype_keymap("*.h",  "i", "/*", "/**/<Esc>hi")
