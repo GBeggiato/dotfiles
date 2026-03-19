@@ -1,4 +1,7 @@
-vim.cmd('colorscheme habamax')
+vim.cmd.colorscheme("default") -- default, habamax, lunaperche
+vim.api.nvim_set_hl(0, "Type",           { link = "DiagnosticWarn" })
+vim.api.nvim_set_hl(0, "PreProc",        { link = "Function" })
+vim.api.nvim_set_hl(0, "PythonOperator", { link = "Statement" })
 
 -- basic behaviour -------------------------------------------------------------
 vim.g.mapleader        = vim.keycode("<space>")
@@ -12,6 +15,7 @@ vim.opt.number         = true
 vim.opt.relativenumber = true
 vim.opt.guicursor      = "a:block,a:blinkwait0" -- cursor always block, no blink
 vim.opt.wrap           = true
+vim.opt.linebreak      = true
 vim.opt.expandtab      = true
 vim.opt.tabstop        = 4
 vim.opt.shiftwidth     = 4
@@ -21,7 +25,7 @@ vim.opt.scrolloff      = 99 -- cursor always mid-screen
 vim.opt.virtualedit    = "block" -- visual mode past end of line
 vim.g.netrw_liststyle  = 1
 vim.o.timeoutlen       = 400
-vim.o.completeopt      = "menu,popup,nearest"
+vim.o.completeopt      = "menu"
 vim.opt.pumheight      = 3  -- how many suggestions to show
 vim.opt.wildignore:append({ "*.o", "*.obj", "*.pyc" })
 
@@ -34,10 +38,11 @@ vim.keymap.set("t", "<C-k>", "<C-\\><C-N>")
 -- ESC working in terminal mode
 vim.keymap.set("t", "<Esc>", "<C-\\><C-N>")
 -- [S]ubstitute in the visual area
-vim.keymap.set("v", "<leader>s", "q:asubstitute//gcI<Esc>3hi")
--- with preview
-vim.keymap.set({"v", "x"}, "<C-s>", [[<Esc>:'<,'>s/\V]])
--- and globally
+-- -- with preview
+vim.keymap.set("v", "<leader>s", [[<Esc>:'<,'>s/]])
+-- -- NO preview
+vim.keymap.set("v", "<leader><leader>s", "q:asubstitute//gcI<Esc>3hi")
+-- -- and globally
 vim.keymap.set("n", "<leader>s", "yiwq:a%substitute///gcI<Esc>5hpla")
 -- modify search path so it's recursive down
 vim.opt.path:append("**")
@@ -128,7 +133,7 @@ local function _expand_snippet(trigger, body)
     -- https://boltless.me/posts/neovim-config-without-plugins-2025/
     local c = vim.fn.nr2char(vim.fn.getchar(0))
     -- Only accept "<C-]>" (or "]") as a trigger key.
-    if (c == "" or c == "]") then vim.snippet.expand(body) 
+    if (c == "" or c == "]") then vim.snippet.expand(body)
     else vim.api.nvim_feedkeys(trigger .. c, "i", true)
     end
 end
@@ -165,7 +170,6 @@ vim.api.nvim_create_autocmd(file_type, { group = snippet_group, pattern = {"html
 })
 vim.api.nvim_create_autocmd(file_type, { group = snippet_group, pattern = {"rust"},
     callback = function()
-        _snippet("fn",    'fn ${1:name}($2) -> $3 {\n\t$4\n}')
         _snippet("match", [[
 match $1 {
     Ok($2) => {$3},
@@ -174,7 +178,9 @@ match $1 {
     None => {$5},
 }
 ]])
+        _snippet("fn",    'fn ${1:name}($2) -> $3 {\n\t$4\n}')
         _snippet("let",   'let $1 = $2;')
+        _snippet("print", 'println!("{}"$1)')
     end
 })
 vim.api.nvim_create_autocmd(file_type, { group = snippet_group, pattern = {"go"},
@@ -200,5 +206,6 @@ local function filetype_keymap(pattern, mode, key, val)
 end
 filetype_keymap("*.go", "i", ":", " := ")
 filetype_keymap("*.rs", "i", "<<", "<><Esc>i")
+filetype_keymap("*.rs", "i", "/*", "/**/<Esc>hi")
 filetype_keymap("*.c",  "i", "/*", "/**/<Esc>hi")
 filetype_keymap("*.h",  "i", "/*", "/**/<Esc>hi")
