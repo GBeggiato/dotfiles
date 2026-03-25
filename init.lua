@@ -1,7 +1,8 @@
 vim.cmd.colorscheme("default") -- default, habamax, lunaperche
 vim.api.nvim_set_hl(0, "Type",           { link = "DiagnosticWarn" })
 vim.api.nvim_set_hl(0, "PreProc",        { link = "Function" })
-vim.api.nvim_set_hl(0, "PythonOperator", { link = "Statement" })
+vim.api.nvim_set_hl(0, "Identifier",     { link = "Normal" })
+vim.api.nvim_set_hl(0, "SpecialComment", { link = "Comment" })
 
 -- basic behaviour -------------------------------------------------------------
 vim.g.mapleader        = vim.keycode("<space>")
@@ -25,21 +26,18 @@ vim.opt.scrolloff      = 99 -- cursor always mid-screen
 vim.opt.virtualedit    = "block" -- visual mode past end of line
 vim.g.netrw_liststyle  = 1
 vim.o.timeoutlen       = 400
-vim.o.completeopt      = "menu"
+vim.o.completeopt      = "menu,nearest"
 vim.opt.pumheight      = 3  -- how many suggestions to show
-vim.opt.wildignore:append({ "*.o", "*.obj", "*.pyc" })
+vim.opt.wildignore:append({"*.o", "*.obj", "*.pyc"})
 
 -- [[remap land]] (M = meta = alt key)  ----------------------------------------
 -- quick save
 vim.keymap.set("n", "<leader>w", "<cmd>update<CR>")
--- Ctrl k as ESC
-vim.keymap.set({"n", "i", "v", "s", "x", "c", "o", "l"}, "<C-k>", "<Esc>")
-vim.keymap.set("t", "<C-k>", "<C-\\><C-N>")
 -- ESC working in terminal mode
 vim.keymap.set("t", "<Esc>", "<C-\\><C-N>")
 -- [S]ubstitute in the visual area
 -- -- with preview
-vim.keymap.set("v", "<leader>s", [[<Esc>:'<,'>s/]])
+vim.keymap.set("v", "<leader>s", ":s/") -- equiv: [[<Esc>:'<,'>s/]
 -- -- NO preview
 vim.keymap.set("v", "<leader><leader>s", "q:asubstitute//gcI<Esc>3hi")
 -- -- and globally
@@ -132,8 +130,8 @@ vim.keymap.set('v', '<leader>a', ':Align<CR>', { silent = true })
 local function _expand_snippet(trigger, body)
     -- https://boltless.me/posts/neovim-config-without-plugins-2025/
     local c = vim.fn.nr2char(vim.fn.getchar(0))
-    -- Only accept "<C-]>" (or "]") as a trigger key.
-    if (c == "" or c == "]") then vim.snippet.expand(body)
+    -- Only accept "<C-]>" as a trigger key.
+    if c == "" then vim.snippet.expand(body)
     else vim.api.nvim_feedkeys(trigger .. c, "i", true)
     end
 end
@@ -146,23 +144,36 @@ local file_type = "FileType"
 vim.api.nvim_create_augroup(snippet_group, { clear = true })
 vim.api.nvim_create_autocmd(file_type, { group = snippet_group, pattern = {"python"},
     callback = function()
-        _snippet("main", 'def main():\n\t${1:print("Hello world")}\n\n\nif __name__ == "__main__":\n\tmain()')
-        _snippet("def",  'def ${1:func}($2) -> ${3:None}:\n\t$4')
-        _snippet("dbg",  'print(f"{$1 = }")')
+        _snippet("main", [[
+def main():
+    ${1:print("Hello world")}
+
+
+if __name__ == "__main__":
+    main()
+]])
+        _snippet("def", 'def ${1:func}($2) -> ${3:None}:\n\t$4')
+        _snippet("dbg", 'print(f"{$1 = }")')
+        -- name your logger lgr !
+        _snippet("lgr", 'lgr.${3:info}("$1" % ($2))')
     end
 })
 vim.api.nvim_create_autocmd(file_type, { group = snippet_group, pattern = {"c", "h", "cpp"},
     callback = function()
-        _snippet("for",    "for (size_t ${1:i} = 0; $1 < ${2:n}; ++$1){\n\t$3\n}")
-        _snippet("ifn",    '#ifndef ${1:NAME}\n#define $1 $2\n$3\n#endif // $1')
         _snippet("malloc", [[
 ${1:type} *${2:name} = malloc(sizeof(*$2)*${3:1});
-if ($2 == NULL) {
-    ${4:assert(false) && "malloc failed"};
-}
+if ($2 == NULL) ${4:assert(false && "malloc failed")};
+$5
 free($2);
 ]]
 )
+        _snippet("for",   "for (size_t ${1:i} = 0; $1 < ${2:n}; ++$1) {\n\t$3\n}")
+        _snippet("ifn",   '#ifndef ${1:NAME}\n#define $1 $2\n$3\n#endif // $1')
+        _snippet("fn",    '${1:void} $2($3) {\n\t$4\n}')
+        _snippet("ty",    'typedef $1 {\n\t$3\n} $2;')
+        _snippet("dbg",   'printf("$1 = %$2\\n", $1);')
+        _snippet("print", 'printf("%$1\\n", $2);')
+
     end
 })
 vim.api.nvim_create_autocmd(file_type, { group = snippet_group, pattern = {"html"},
@@ -180,14 +191,19 @@ match $1 {
 ]])
         _snippet("fn",    'fn ${1:name}($2) -> $3 {\n\t$4\n}')
         _snippet("let",   'let $1 = $2;')
-        _snippet("print", 'println!("{}"$1)')
+        _snippet("print", 'println!("{}", $1);')
     end
 })
 vim.api.nvim_create_autocmd(file_type, { group = snippet_group, pattern = {"go"},
     callback = function()
+        _snippet("call", [[
+${1:_}, ${2:err} := ${3:name}($4)
+if $2 != nil {
+    ${5:return nil, $2}
+}
+]])
         _snippet("func",  'func ${1:name}($2) $3 {\n\t$4\n}')
         _snippet("meth",  'func ($1) ${2:name}($3) $4 {\n\t$5\n}')
-        _snippet("call",  '${1:x}, ${2:err} := ${3:name}($4)\nif $2 != nil {\n\t${5:return nil, err}\n}')
         _snippet("ife",   'if ${1:err} != nil {\n\t${2:return nil, err}\n}')
         _snippet("range", 'for ${1:_}, $2 := range $3 {\n\t$4\n}')
         _snippet("for",   'for ${1:i} := 0; $1 < ${2:n}; $1++ {\n\t$3\n}')
