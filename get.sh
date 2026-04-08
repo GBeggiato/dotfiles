@@ -4,4 +4,4 @@
 cp ~/.bashrc .bashrc
 # nvim
 cp ~/.config/nvim/init.lua init.lua
-cp ~/.config/nvim/plugins.lua plugins.lua
+# cp ~/.config/nvim/plugins.lua plugins.lua
