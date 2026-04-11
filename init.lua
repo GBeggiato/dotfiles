@@ -1,11 +1,18 @@
-if true then
-    vim.cmd.colorscheme("habamax")
-else
-    vim.cmd.colorscheme("default")
-    vim.api.nvim_set_hl(0, "PreProc",  {link = "Function"})
-    vim.api.nvim_set_hl(0, "Type",     {link = "DiagnosticWarn"})
-    vim.api.nvim_set_hl(0, "Constant", {link = "DiagnosticWarn"})
+-- colorscheme -----------------------------------------------------------------
+local colorscheme_is_habamax = false
+local function toggle_colorscheme()
+    if colorscheme_is_habamax then
+        vim.cmd.colorscheme("habamax")
+    else
+        vim.cmd.colorscheme("default")
+        vim.api.nvim_set_hl(0, "PreProc",        {link = "Identifier"})
+        vim.api.nvim_set_hl(0, "SpecialComment", {link = "Comment"})
+        vim.api.nvim_set_hl(0, "Type",           {link = "DiagnosticWarn"})
+    end
+    colorscheme_is_habamax = not colorscheme_is_habamax
 end
+toggle_colorscheme()
+vim.api.nvim_create_user_command('ColoChange', function(opts) toggle_colorscheme() end, {})
 
 -- basic behaviour -------------------------------------------------------------
 vim.g.mapleader        = vim.keycode("<space>")
