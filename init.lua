@@ -1,18 +1,13 @@
 -- colorscheme -----------------------------------------------------------------
-local colorscheme_is_habamax = false
-local function toggle_colorscheme()
-    if colorscheme_is_habamax then
-        vim.cmd.colorscheme("habamax")
-    else
-        vim.cmd.colorscheme("default")
-        vim.api.nvim_set_hl(0, "PreProc",        {link = "Identifier"})
-        vim.api.nvim_set_hl(0, "SpecialComment", {link = "Comment"})
-        vim.api.nvim_set_hl(0, "Type",           {link = "DiagnosticWarn"})
-    end
-    colorscheme_is_habamax = not colorscheme_is_habamax
+local function refresh_colorscheme()
+    vim.cmd.colorscheme("default")
+    vim.api.nvim_set_hl(0, "Type",           {link = "DiagnosticWarn"})
+    vim.api.nvim_set_hl(0, "PreProc",        {link = "Identifier"})
+    vim.api.nvim_set_hl(0, "SpecialComment", {link = "Comment"})
+    vim.api.nvim_set_hl(0, "Constant",       {link = "Identifier"})
 end
-toggle_colorscheme()
-vim.api.nvim_create_user_command('ColoChange', function(opts) toggle_colorscheme() end, {})
+refresh_colorscheme()
+vim.api.nvim_create_user_command('ColoRefresh', function(opts) refresh_colorscheme() end, {})
 
 -- basic behaviour -------------------------------------------------------------
 vim.g.mapleader        = vim.keycode("<space>")
@@ -83,14 +78,15 @@ vim.keymap.set("v", '"s', 'c"<C-r>""<Esc>%')
 vim.keymap.set("n", "<leader>b", "<cmd>b#<CR>")
 -- homemade autopairs
 ---- open and automatically close
-vim.keymap.set("i", "((",  "()<Esc>i")
-vim.keymap.set("i", "[[",  "[]<Esc>i")
-vim.keymap.set("i", "{{",  "{}<Esc>i")
-vim.keymap.set('i', '""',  '""<Esc>i')
+vim.keymap.set("i", "((",  "()<Left>")
+vim.keymap.set("i", "[[",  "[]<Left>")
+vim.keymap.set("i", "{{",  "{}<Left>")
+vim.keymap.set('i', '""',  '""<Left>')
+vim.keymap.set('i', "''",  "''<Left>")
 ---- open and automatically close, on multiple lines
-vim.keymap.set("i", "(<CR>", "()<Esc>i<CR><Esc>O")
-vim.keymap.set("i", "[<CR>", "[]<Esc>i<CR><Esc>O")
-vim.keymap.set("i", "{<CR>", "{}<Esc>i<CR><Esc>O")
+vim.keymap.set("i", "(<CR>", "()<Left><CR><Esc>O")
+vim.keymap.set("i", "[<CR>", "[]<Left><CR><Esc>O")
+vim.keymap.set("i", "{<CR>", "{}<Left><CR><Esc>O")
 -- nvim terminal
 vim.keymap.set("n", "<leader>t", "<cmd>terminal<CR>A")
 -- [N]orm
@@ -150,10 +146,10 @@ local function _snippet(trigger, body)
     vim.keymap.set("ia", trigger, function() _expand_snippet(trigger, body) end, {})
 end
 -- organize snippets by file type
-local snippet_group = "SnippetGroup"
-local file_type = "FileType"
-vim.api.nvim_create_augroup(snippet_group, { clear = true })
-vim.api.nvim_create_autocmd(file_type, { group = snippet_group, pattern = {"python"},
+local SNIPPET_GROUP = "SnippetGroup"
+local FILE_TYPE = "FileType"
+vim.api.nvim_create_augroup(SNIPPET_GROUP, { clear = true })
+vim.api.nvim_create_autocmd(FILE_TYPE, { group = SNIPPET_GROUP, pattern = {"python"},
     callback = function()
         _snippet("main", [[
 def main():
@@ -165,11 +161,12 @@ if __name__ == "__main__":
 ]])
         _snippet("def", 'def ${1:func}($2) -> ${3:None}:\n\t$4')
         _snippet("dbg", 'print(f"{$1 = }")')
+        _snippet("ifn", 'if ($1 := $2) ${3:is None}:\n\t${4:return}')
         -- name your logger lgr !
         _snippet("lgr", 'lgr.${3:info}("$1" % ($2))')
     end
 })
-vim.api.nvim_create_autocmd(file_type, { group = snippet_group, pattern = {"c", "h", "cpp"},
+vim.api.nvim_create_autocmd(FILE_TYPE, { group = SNIPPET_GROUP, pattern = {"c", "h", "cpp"},
     callback = function()
         _snippet("malloc", [[
 ${1:type} *${2:name} = malloc(sizeof(*$2)*${3:1});
@@ -187,13 +184,13 @@ free($2);
 
     end
 })
-vim.api.nvim_create_autocmd(file_type, { group = snippet_group, pattern = {"html"},
+vim.api.nvim_create_autocmd(FILE_TYPE, { group = SNIPPET_GROUP, pattern = {"html"},
     callback = function() _snippet("t", '<$1>\n\t$2\n</$1>') end
 })
-vim.api.nvim_create_autocmd(file_type, { group = snippet_group, pattern = {"tex"},
-    callback = function() _snippet("t", '\\begin{$1}\n$2\n\\end{$1}') end
+vim.api.nvim_create_autocmd(FILE_TYPE, { group = SNIPPET_GROUP, pattern = {"tex"},
+    callback = function() _snippet("b", '\\begin{$1}\n$2\n\\end{$1}') end
 })
-vim.api.nvim_create_autocmd(file_type, { group = snippet_group, pattern = {"rust"},
+vim.api.nvim_create_autocmd(FILE_TYPE, { group = SNIPPET_GROUP, pattern = {"rust"},
     callback = function()
         _snippet("match", [[
 match $1 {
@@ -208,7 +205,7 @@ match $1 {
         _snippet("print", 'println!("{}", $1);')
     end
 })
-vim.api.nvim_create_autocmd(file_type, { group = snippet_group, pattern = {"go"},
+vim.api.nvim_create_autocmd(FILE_TYPE, { group = SNIPPET_GROUP, pattern = {"go"},
     callback = function()
         _snippet("call", [[
 ${1:_}, ${2:err} := ${3:name}($4)
@@ -227,10 +224,10 @@ if $2 != nil {
 
 -- filetype-specific keymaps -- automagically add stuff here -------------------
 local function filetype_keymap(pattern, mode, key, val)
-    vim.api.nvim_create_autocmd("BufEnter", { group = snippet_group, pattern = {pattern},
+    vim.api.nvim_create_autocmd("BufEnter", { group = SNIPPET_GROUP, pattern = {pattern},
         callback = function(ev) vim.keymap.set(mode, key, val) end
     })
-    vim.api.nvim_create_autocmd("BufLeave", { group = snippet_group, pattern = {pattern},
+    vim.api.nvim_create_autocmd("BufLeave", { group = SNIPPET_GROUP, pattern = {pattern},
         callback = function(ev) vim.keymap.del(mode, key) end
     })
 end
