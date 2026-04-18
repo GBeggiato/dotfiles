@@ -26,7 +26,7 @@ vim.opt.expandtab      = true
 vim.opt.tabstop        = 4
 vim.opt.shiftwidth     = 4
 vim.opt.colorcolumn    = "80"
-vim.opt.clipboard      = "unnamedplus" -- sync vim and standard copy register
+-- vim.opt.clipboard      = "unnamedplus" -- sync vim and standard copy register
 vim.opt.scrolloff      = 99 -- cursor always mid-screen
 vim.opt.virtualedit    = "block" -- visual mode past end of line
 vim.g.netrw_liststyle  = 1
@@ -133,6 +133,13 @@ vim.api.nvim_create_user_command(
 )
 vim.keymap.set('v', '<leader>a', ':Align<CR>', { silent = true })
 
+local FILE_TYPE = "FileType"
+
+-- quickfix list height --------------------------------------------------------
+vim.api.nvim_create_autocmd(FILE_TYPE,
+    { pattern = "qf", callback = function() vim.cmd("resize 4") end }
+)
+
 -- snippets --------------------------------------------------------------------
 local function _expand_snippet(trigger, body)
     -- https://boltless.me/posts/neovim-config-without-plugins-2025/
@@ -147,7 +154,6 @@ local function _snippet(trigger, body)
 end
 -- organize snippets by file type
 local SNIPPET_GROUP = "SnippetGroup"
-local FILE_TYPE = "FileType"
 vim.api.nvim_create_augroup(SNIPPET_GROUP, { clear = true })
 vim.api.nvim_create_autocmd(FILE_TYPE, { group = SNIPPET_GROUP, pattern = {"python"},
     callback = function()
@@ -162,8 +168,7 @@ if __name__ == "__main__":
         _snippet("def", 'def ${1:func}($2) -> ${3:None}:\n\t$4')
         _snippet("dbg", 'print(f"{$1 = }")')
         _snippet("ifn", 'if ($1 := $2) ${3:is None}:\n\t${4:return}')
-        -- name your logger lgr !
-        _snippet("lgr", 'lgr.${3:info}("$1" % ($2))')
+        _snippet("lgr", '${4:lgr}.${3:info}("$1" % ($2))')
     end
 })
 vim.api.nvim_create_autocmd(FILE_TYPE, { group = SNIPPET_GROUP, pattern = {"c", "h", "cpp"},
