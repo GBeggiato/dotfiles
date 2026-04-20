@@ -3,8 +3,8 @@ local function refresh_colorscheme()
     vim.cmd.colorscheme("default")
     vim.api.nvim_set_hl(0, "Type",           {link = "DiagnosticWarn"})
     vim.api.nvim_set_hl(0, "PreProc",        {link = "Identifier"})
-    vim.api.nvim_set_hl(0, "SpecialComment", {link = "Comment"})
     vim.api.nvim_set_hl(0, "Constant",       {link = "Identifier"})
+    vim.api.nvim_set_hl(0, "SpecialComment", {link = "Comment"})
 end
 refresh_colorscheme()
 vim.api.nvim_create_user_command('ColoRefresh', function(opts) refresh_colorscheme() end, {})
@@ -26,7 +26,6 @@ vim.opt.expandtab      = true
 vim.opt.tabstop        = 4
 vim.opt.shiftwidth     = 4
 vim.opt.colorcolumn    = "80"
--- vim.opt.clipboard      = "unnamedplus" -- sync vim and standard copy register
 vim.opt.scrolloff      = 99 -- cursor always mid-screen
 vim.opt.virtualedit    = "block" -- visual mode past end of line
 vim.g.netrw_liststyle  = 1
@@ -180,9 +179,9 @@ $5
 free($2);
 ]]
 )
-        _snippet("for",   "for (size_t ${1:i} = 0; $1 < ${2:n}; ++$1) {\n\t$3\n}")
+        _snippet("for",   "for (size_t ${1:i} = ${2:0}; $1 < ${3:n}; ++$1) {\n\t$4\n}")
         _snippet("ifn",   '#ifndef ${1:NAME}\n#define $1 $2\n$3\n#endif // $1')
-        _snippet("fn",    '${1:void} $2($3) {\n\t$4\n}')
+        _snippet("fn",    '${1:void} $2(${3:void}) {\n\t$4\n}')
         _snippet("ty",    'typedef $1 {\n\t$3\n} $2;')
         _snippet("dbg",   'printf("$1 = %$2\\n", $1);')
         _snippet("print", 'printf("%$1\\n", $2);')
@@ -215,10 +214,11 @@ vim.api.nvim_create_autocmd(FILE_TYPE, { group = SNIPPET_GROUP, pattern = {"go"}
         _snippet("call", [[
 ${1:_}, ${2:err} := ${3:name}($4)
 if $2 != nil {
-    ${5:return nil, $2}
+    ${5:return nil}, $2
 }
 ]])
         _snippet("func",  'func ${1:name}($2) $3 {\n\t$4\n}')
+        _snippet("type",  'type $1 ${2:struct} {\n\t$3\n}')
         _snippet("meth",  'func ($1) ${2:name}($3) $4 {\n\t$5\n}')
         _snippet("ife",   'if ${1:err} != nil {\n\t${2:return nil, err}\n}')
         _snippet("range", 'for ${1:_}, $2 := range $3 {\n\t$4\n}')
