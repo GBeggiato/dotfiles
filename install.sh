@@ -1,6 +1,7 @@
 # DOCS
 # https://github.com/neovim/neovim/blob/master/BUILD.md
 # https://github.com/neovim/neovim/blob/master/INSTALL.md#install-from-source
+echo "NVIM_CONFIG_INSTALLER: START"
 
 # install location root path
 cd ~
@@ -13,12 +14,17 @@ cd neovim
 # most optimizations
 make CMAKE_BUILD_TYPE=Release
 sudo make install
-echo "LOCAL: neovim installed"
+echo "NVIM_CONFIG_INSTALLER: neovim installed"
 
 # fetching personal init.lua
 mkdir ~/.config/nvim/ -p
-echo "LOCAL: ~/config/nvim is there"
-wget https://raw.githubusercontent.com/GBeggiato/dotfiles/refs/heads/master/init.lua
-echo "LOCAL: downloaded latest commit of init.lua"
+echo "NVIM_CONFIG_INSTALLER: ~/.config/nvim is there"
 
-echo "LOCAL: DONE"
+cd ~/.config/nvim/
+wget https://raw.githubusercontent.com/GBeggiato/dotfiles/refs/heads/master/init.lua
+echo "NVIM_CONFIG_INSTALLER: downloaded latest commit of init.lua"
+
+sudo apt install npm
+echo "NVIM_CONFIG_INSTALLER: installed npm for the pyright server"
+
+echo "NVIM_CONFIG_INSTALLER: DONE"

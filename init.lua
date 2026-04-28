@@ -6,8 +6,8 @@ local function refresh_colorscheme()
     vim.api.nvim_set_hl(0, "Constant",       {link = "Identifier"})
     vim.api.nvim_set_hl(0, "SpecialComment", {link = "Comment"})
 end
-refresh_colorscheme()
 vim.api.nvim_create_user_command('ColoRefresh', function(opts) refresh_colorscheme() end, {})
+refresh_colorscheme()
 
 -- basic behaviour -------------------------------------------------------------
 vim.g.mapleader        = vim.keycode("<space>")
@@ -32,6 +32,8 @@ vim.g.netrw_liststyle  = 1
 vim.o.timeoutlen       = 400
 vim.o.completeopt      = "menu,nearest"
 vim.opt.pumheight      = 3  -- how many suggestions to show
+-- modify search path so it's recursive down
+vim.opt.path:append("**")
 vim.opt.wildignore:append({"*.o", "*.obj", "*.pyc"})
 
 -- [[remap land]] (M = meta = alt key)  ----------------------------------------
@@ -46,8 +48,6 @@ vim.keymap.set("v", "<leader>s", ":s/") -- equiv: [[<Esc>:'<,'>s/]
 vim.keymap.set("v", "<leader><leader>s", "q:asubstitute//gcI<Esc>3hi")
 -- -- and globally
 vim.keymap.set("n", "<leader>s", "yiwq:a%substitute///gcI<Esc>5hpla")
--- modify search path so it's recursive down
-vim.opt.path:append("**")
 -- [F]ind files from vim root
 vim.keymap.set("n", "<leader>f", ":find ")
 -- [N]ewline: paste line below + maintaing cursor column position
@@ -181,7 +181,7 @@ free($2);
 )
         _snippet("for",   "for (size_t ${1:i} = ${2:0}; $1 < ${3:n}; ++$1) {\n\t$4\n}")
         _snippet("ifn",   '#ifndef ${1:NAME}\n#define $1 $2\n$3\n#endif // $1')
-        _snippet("fn",    '${1:void} $2(${3:void}) {\n\t$4\n}')
+        _snippet("void",  '${1:void} $2(${3:void}) {\n\t$4\n}')
         _snippet("ty",    'typedef $1 {\n\t$3\n} $2;')
         _snippet("dbg",   'printf("$1 = %$2\\n", $1);')
         _snippet("print", 'printf("%$1\\n", $2);')
@@ -241,3 +241,101 @@ filetype_keymap("*.rs", "i", "<<", "<><Esc>i")
 filetype_keymap("*.rs", "i", "/*", "/*  */<Esc>2hi")
 filetype_keymap("*.c",  "i", "/*", "/*  */<Esc>2hi")
 filetype_keymap("*.h",  "i", "/*", "/*  */<Esc>2hi")
+
+-- here be plugins -------------------------------------------------------------
+vim.opt.winborder = "single"
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not vim.loop.fs_stat(lazypath) then
+    vim.fn.system({
+        "git", "clone", "--filter=blob:none",
+        "https://github.com/folke/lazy.nvim.git",
+        "--branch=stable", lazypath,
+    })
+end
+vim.opt.rtp:prepend(lazypath)
+require("lazy").setup {
+    { -- Autocompletion engine
+        "hrsh7th/nvim-cmp", event = "InsertEnter",
+        config = function()
+            local cmp = require("cmp")
+            cmp.setup({
+                completion = { completeopt = "menu,noinsert", },
+                mapping = cmp.mapping.preset.insert {
+                    ["<C-n>"] = cmp.mapping.select_next_item(),
+                    ["<C-p>"] = cmp.mapping.select_prev_item(),
+                    ["<C-y>"] = cmp.mapping.confirm {select = true},
+                    ["<CR>"]  = cmp.mapping.confirm {select = true},
+                    ["<C-b>"] = cmp.mapping.scroll_docs(-4),
+                    ["<C-f>"] = cmp.mapping.scroll_docs(4),
+                },
+                sources = {
+                    {name = "buffer", },
+                    {name = "path", },
+                    -- {name = "nvim_lsp", }, -- disable for a quiet lsp experience, C-X C-O
+                },
+                -- keep the suggestion menu short and nice so the docs are not squashed
+                window = {
+                    documentation = {
+                        max_height = 12,
+                        max_width = 50,
+                        border = "single",
+                    }
+                },
+                formatting = {
+                    fields = {"abbr", "kind"}, -- menu (source path)
+                    format = function(_, vim_item)
+                        vim_item.abbr = string.sub(vim_item.abbr, 1, 14)
+                        vim_item.kind = string.sub(vim_item.kind, 1, 4)
+                        return vim_item
+                    end
+                },
+            })
+        end,
+    },
+    { -- LSP
+        "neovim/nvim-lspconfig",
+        dependencies = {
+            "williamboman/mason.nvim",
+            "williamboman/mason-lspconfig.nvim",
+            "WhoIsSethDaniel/mason-tool-installer.nvim",
+            "hrsh7th/cmp-nvim-lsp",
+        },
+        config = function()
+            vim.api.nvim_create_autocmd("LspAttach", {
+                group = vim.api.nvim_create_augroup("lsp-attach", { clear = true }),
+                callback = function(event)
+                    -- These GLOBAL keymaps are created unconditionally when Nvim starts:
+                    -- "gra" is mapped in Normal and Visual mode to |vim.lsp.buf.code_action()|
+                    -- "grn" is mapped in Normal            mode to |vim.lsp.buf.rename()|
+                    -- "grr" is mapped in Normal            mode to |vim.lsp.buf.references()|
+                    -- "gri" is mapped in Normal            mode to |vim.lsp.buf.implementation()|
+                    -- "gO" is mapped in Normal             mode to |vim.lsp.buf.document_symbol()|
+                    -- CTRL-S is mapped in Insert           mode to |vim.lsp.buf.signature_help()|
+                    -- "grt" is mapped in Normal            mode to |vim.lsp.buf.type_definition()|
+                    -- "grx" is mapped in Normal            mode to |vim.lsp.codelens.run()|
+                    vim.keymap.set("n", "ggd",       vim.lsp.buf.definition,    {buffer = event.buf})
+                    vim.keymap.set("n", "K",         vim.lsp.buf.hover,         {buffer = event.buf})
+                    vim.keymap.set("n", "<leader>d", vim.diagnostic.open_float, {buffer = event.buf})
+                end,
+            })
+            local servers = {
+                pyright = {},
+                -- rust_analyzer = {},
+                -- gopls = {},
+                -- clangd = {},
+            }
+            require("mason").setup()
+            local ensure_installed = vim.tbl_keys(servers or {})
+            require("mason-tool-installer").setup {ensure_installed = ensure_installed,}
+            local caps = vim.lsp.protocol.make_client_capabilities()
+            caps = vim.tbl_deep_extend("force", caps, require("cmp_nvim_lsp").default_capabilities())
+            require("mason-lspconfig").setup{ handlers = {
+                function(server_name)
+                    local server = servers[server_name] or {}
+                    server.capabilities = vim.tbl_deep_extend("force", {}, caps, server.capabilities or {})
+                    require("lspconfig")[server_name].setup(server)
+                end,
+            }, }
+        end,
+    },
+}
