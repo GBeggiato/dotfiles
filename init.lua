@@ -7,7 +7,7 @@ local function refresh_colorscheme()
     vim.api.nvim_set_hl(0, "SpecialComment", {link = "Comment"})
 end
 vim.api.nvim_create_user_command('ColoRefresh', function(opts) refresh_colorscheme() end, {})
-refresh_colorscheme()
+vim.cmd.colorscheme("habamax")
 
 -- basic behaviour -------------------------------------------------------------
 vim.g.mapleader        = vim.keycode("<space>")
@@ -135,7 +135,7 @@ local FILE_TYPE = "FileType"
 
 -- quickfix list height --------------------------------------------------------
 vim.api.nvim_create_autocmd(FILE_TYPE,
-    { pattern = "qf", callback = function() vim.cmd("resize 4") end }
+    { pattern = "qf", callback = function() vim.cmd("resize 6") end }
 )
 
 -- snippets --------------------------------------------------------------------
@@ -262,8 +262,7 @@ if true then
             ["<C-p>"] = cmp.mapping.select_prev_item(),
             ["<C-y>"] = cmp.mapping.confirm {select = true},
             ["<CR>"]  = cmp.mapping.confirm {select = true},
-            ["<C-b>"] = cmp.mapping.scroll_docs(-4),
-            ["<C-f>"] = cmp.mapping.scroll_docs(4),
+            -- ["<C-b>"] = cmp.mapping.scroll_docs(-4), ["<C-f>"] = cmp.mapping.scroll_docs(4),
         },
         sources = {
             {name = "buffer", },
