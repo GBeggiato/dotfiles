@@ -1,13 +1,16 @@
 -- colorscheme -----------------------------------------------------------------
-local function refresh_colorscheme()
-    vim.cmd.colorscheme("default")
-    vim.api.nvim_set_hl(0, "Type",           {link = "DiagnosticWarn"})
-    vim.api.nvim_set_hl(0, "PreProc",        {link = "Identifier"})
-    vim.api.nvim_set_hl(0, "Constant",       {link = "Identifier"})
-    vim.api.nvim_set_hl(0, "SpecialComment", {link = "Comment"})
-end
-vim.api.nvim_create_user_command('ColoRefresh', function(opts) refresh_colorscheme() end, {})
-vim.cmd.colorscheme("habamax")
+vim.api.nvim_create_user_command(
+    'ColoRefresh', 
+    function(opts) 
+        vim.cmd.colorscheme("default")
+        vim.api.nvim_set_hl(0, "Type",           {link = "DiagnosticWarn"})
+        vim.api.nvim_set_hl(0, "PreProc",        {link = "Identifier"})
+        vim.api.nvim_set_hl(0, "Constant",       {link = "Identifier"})
+        vim.api.nvim_set_hl(0, "SpecialComment", {link = "Comment"})
+    end, 
+    {}
+)
+vim.cmd("ColoRefresh")
 
 -- basic behaviour -------------------------------------------------------------
 vim.g.mapleader        = vim.keycode("<space>")
@@ -15,7 +18,7 @@ vim.g.maplocalleader   = vim.keycode("<space>")
 vim.opt.swapfile       = false
 vim.opt.shada          = "" -- forgets marks, registers
 vim.opt.mouse          = "" -- fully disable to avoid touchpad issues
-vim.opt.signcolumn     = "no" -- yes:1 for diagnostics
+vim.opt.signcolumn     = "no"
 vim.opt.number         = true
 vim.opt.relativenumber = true
 vim.opt.guicursor      = "a:block,a:blinkwait0" -- cursor always block, no blink
@@ -103,6 +106,9 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 })
 
 -- [A]lign ---------------------------------------------------------------------
+-- align only by equal (:'<,'>!column -t -s= -o=<cr>)
+vim.keymap.set('v', '<leader>a', ':!column -t -s= -o=<CR>', { silent = true })
+-- more complex alignment
 local function align_line(line, sep, maxpos)
     local before, after = line:match('(.-)%s*(' .. sep .. '.*)')
     if not before then return line end
@@ -122,6 +128,7 @@ end
 vim.api.nvim_create_user_command(
     'Align',
     function(opts)
+        -- :'<,'>!column -t -s= -o=<cr>
         local first_line = opts.line1
         local last_line = opts.line2
         local separator = vim.fn.input('Enter alignment separator: ', '')
@@ -129,7 +136,7 @@ vim.api.nvim_create_user_command(
     end,
     { nargs = '?', range = true }
 )
-vim.keymap.set('v', '<leader>a', ':Align<CR>', { silent = true })
+vim.keymap.set('v', '<leader><leader>a', ':Align<CR>', { silent = true })
 
 local FILE_TYPE = "FileType"
 
@@ -242,7 +249,7 @@ filetype_keymap("*.c",  "i", "/*", "/*  */<Esc>2hi")
 filetype_keymap("*.h",  "i", "/*", "/*  */<Esc>2hi")
 
 -- here be plugins -------------------------------------------------------------
-if true then
+if false then
     vim.opt.signcolumn = "yes:1"
     vim.opt.winborder  = "single"
     vim.pack.add({ -- autocompletion engine + full LSP support
