@@ -1,12 +1,23 @@
+local load_plugins = false
+
 -- colorscheme -----------------------------------------------------------------
+local current_colorscheme = 1
 vim.api.nvim_create_user_command(
     'ColoRefresh', 
     function(opts) 
-        vim.cmd.colorscheme("default")
-        vim.api.nvim_set_hl(0, "Type",           {link = "DiagnosticWarn"})
-        vim.api.nvim_set_hl(0, "PreProc",        {link = "Identifier"})
-        vim.api.nvim_set_hl(0, "Constant",       {link = "Identifier"})
-        vim.api.nvim_set_hl(0, "SpecialComment", {link = "Comment"})
+        if current_colorscheme == 0 then
+            vim.cmd.colorscheme("default")
+            vim.api.nvim_set_hl(0, "Type",           {link = "DiagnosticWarn"})
+            vim.api.nvim_set_hl(0, "PreProc",        {link = "Identifier"})
+            vim.api.nvim_set_hl(0, "Constant",       {link = "Identifier"})
+            vim.api.nvim_set_hl(0, "SpecialComment", {link = "Comment"})
+        elseif current_colorscheme == 1 then
+            vim.cmd.colorscheme("lunaperche")
+            vim.api.nvim_set_hl(0, "Function", {link = "PreProc"})
+        elseif current_colorscheme == 2 then
+            vim.cmd.colorscheme("habamax")
+        end
+        current_colorscheme = (current_colorscheme + 1) % 3
     end, 
     {}
 )
@@ -106,7 +117,6 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 })
 
 -- [A]lign ---------------------------------------------------------------------
--- align only by equal (:'<,'>!column -t -s= -o=<cr>)
 vim.keymap.set('v', '<leader>a', ':!column -t -s= -o=<CR>', { silent = true })
 -- more complex alignment
 local function align_line(line, sep, maxpos)
@@ -249,7 +259,7 @@ filetype_keymap("*.c",  "i", "/*", "/*  */<Esc>2hi")
 filetype_keymap("*.h",  "i", "/*", "/*  */<Esc>2hi")
 
 -- here be plugins -------------------------------------------------------------
-if false then
+if load_plugins then
     vim.opt.signcolumn = "yes:1"
     vim.opt.winborder  = "single"
     vim.pack.add({ -- autocompletion engine + full LSP support
