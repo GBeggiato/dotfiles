@@ -22,6 +22,7 @@ vim.api.nvim_create_user_command(
             vim.api.nvim_set_hl(0, "Statement",      {fg = "Yellow"})
             vim.api.nvim_set_hl(0, "String",         {fg = "Lime"})
             vim.api.nvim_set_hl(0, "Type",           {fg = "#95a99f"})
+            vim.api.nvim_set_hl(0, "Function",       {fg = "#95a99f"})
             vim.api.nvim_set_hl(0, "Constant",       {fg = "#95a99f"})
             vim.api.nvim_set_hl(0, "Comment",        {link = "DiagnosticWarn"})
             vim.api.nvim_set_hl(0, "SpecialComment", {link = "DiagnosticWarn"})
