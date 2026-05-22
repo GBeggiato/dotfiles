@@ -15,17 +15,18 @@ vim.api.nvim_create_user_command(
             vim.cmd.colorscheme("lunaperche")
             vim.api.nvim_set_hl(0, "Function", {link = "PreProc"})
         elseif current_colorscheme == 2 then
-            vim.cmd.colorscheme("habamax")
-        elseif current_colorscheme == 3 then
-            -- poor man's gruber darker (uttps://github.com/rexim/gruber-darker-theme)
+            -- poor man's gruber darker (https://github.com/rexim/gruber-darker-theme)
             vim.cmd.colorscheme("quiet")
             vim.api.nvim_set_hl(0, "Statement",      {fg = "Yellow"})
-            vim.api.nvim_set_hl(0, "String",         {fg = "Lime"})
+            vim.api.nvim_set_hl(0, "String",         {fg = "LimeGreen"})
             vim.api.nvim_set_hl(0, "Type",           {fg = "#95a99f"})
             vim.api.nvim_set_hl(0, "Function",       {fg = "#95a99f"})
+            vim.api.nvim_set_hl(0, "PreProc",        {fg = "#95a99f"})
             vim.api.nvim_set_hl(0, "Constant",       {fg = "#95a99f"})
-            vim.api.nvim_set_hl(0, "Comment",        {link = "DiagnosticWarn"})
-            vim.api.nvim_set_hl(0, "SpecialComment", {link = "DiagnosticWarn"})
+            vim.api.nvim_set_hl(0, "Comment",        {fg = "DarkOrange"})
+            vim.api.nvim_set_hl(0, "SpecialComment", {fg = "DarkOrange"})
+        elseif current_colorscheme == 3 then
+            vim.cmd.colorscheme("habamax")
         end
         current_colorscheme = (current_colorscheme + 1) % 4
     end, 
