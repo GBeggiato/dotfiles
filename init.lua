@@ -3,8 +3,8 @@ local load_plugins = false
 -- colorscheme -----------------------------------------------------------------
 local current_colorscheme = 1
 vim.api.nvim_create_user_command(
-    'ColoRefresh', 
-    function(opts) 
+    'ColoRefresh',
+    function(opts)
         if current_colorscheme == 0 then
             vim.cmd.colorscheme("default")
             vim.api.nvim_set_hl(0, "Type",           {link = "DiagnosticWarn"})
@@ -22,8 +22,8 @@ vim.api.nvim_create_user_command(
             vim.api.nvim_set_hl(0, "String",         {fg = "LimeGreen"})
             vim.api.nvim_set_hl(0, "Comment",        {fg = "DarkOrange"})
             vim.api.nvim_set_hl(0, "SpecialComment", {fg = "DarkOrange"})
-            vim.api.nvim_set_hl(0, "Type",           {fg = "#95a99f"})
-            vim.api.nvim_set_hl(0, "Function",       {fg = "#95a99f"})
+            vim.api.nvim_set_hl(0, "Function",       {fg = "#9e95c7"}) -- wisteria
+            vim.api.nvim_set_hl(0, "Type",           {fg = "#95a99f"}) -- quartz
             vim.api.nvim_set_hl(0, "PreProc",        {fg = "#95a99f"})
             vim.api.nvim_set_hl(0, "Constant",       {fg = "#95a99f"})
             vim.api.nvim_set_hl(0, "Number",         {link = "Normal"})
@@ -32,7 +32,7 @@ vim.api.nvim_create_user_command(
             vim.api.nvim_set_hl(0, "Special", {link = "Normal"})
         end
         current_colorscheme = (current_colorscheme + 1) % 4
-    end, 
+    end,
     {}
 )
 vim.cmd("ColoRefresh")
@@ -315,14 +315,14 @@ if load_plugins then
         group = vim.api.nvim_create_augroup("lsp-attach", { clear = true }),
         callback = function(event)
             -- These GLOBAL keymaps are created unconditionally when Nvim starts:
-            -- "gra" is mapped in Normal and Visual mode to |vim.lsp.buf.code_action()|
-            -- "grn" is mapped in Normal            mode to |vim.lsp.buf.rename()|
-            -- "grr" is mapped in Normal            mode to |vim.lsp.buf.references()|
-            -- "gri" is mapped in Normal            mode to |vim.lsp.buf.implementation()|
-            -- "gO" is mapped in Normal             mode to |vim.lsp.buf.document_symbol()|
-            -- CTRL-S is mapped in Insert           mode to |vim.lsp.buf.signature_help()|
-            -- "grt" is mapped in Normal            mode to |vim.lsp.buf.type_definition()|
-            -- "grx" is mapped in Normal            mode to |vim.lsp.codelens.run()|
+            -- "gra"  is mapped in Normal and Visual mode to |vim.lsp.buf.code_action()|
+            -- "grn"  is mapped in Normal            mode to |vim.lsp.buf.rename()|
+            -- "grr"  is mapped in Normal            mode to |vim.lsp.buf.references()|
+            -- "gri"  is mapped in Normal            mode to |vim.lsp.buf.implementation()|
+            -- "gO"   is mapped in Normal            mode to |vim.lsp.buf.document_symbol()|
+            -- CTRL-S is mapped in Insert            mode to |vim.lsp.buf.signature_help()|
+            -- "grt"  is mapped in Normal            mode to |vim.lsp.buf.type_definition()|
+            -- "grx"  is mapped in Normal            mode to |vim.lsp.codelens.run()|
             vim.keymap.set("n", "grd",       vim.lsp.buf.definition,    {buffer = event.buf})
             vim.keymap.set("n", "K",         vim.lsp.buf.hover,         {buffer = event.buf})
             vim.keymap.set("n", "<leader>d", vim.diagnostic.open_float, {buffer = event.buf})
