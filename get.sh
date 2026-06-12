@@ -4,6 +4,8 @@
 # cp ~/.bashrc .bashrc.void
 # nvim
 cp ~/.config/nvim/init.lua init.lua
+echo "fetched init.lua"
+
 # cp ~/.config/nvim/plugins.lua plugins.lua
 
 # cp ~/.config/nvim/install.sh install.sh

@@ -1,7 +1,7 @@
-local load_plugins = false
+local load_plugins = true
 
 -- colorscheme -----------------------------------------------------------------
-local current_colorscheme = 1
+local current_colorscheme = 2
 vim.api.nvim_create_user_command(
     'ColoRefresh',
     function(opts)
@@ -22,6 +22,7 @@ vim.api.nvim_create_user_command(
             vim.api.nvim_set_hl(0, "String",         {fg = "LimeGreen"})
             vim.api.nvim_set_hl(0, "Comment",        {fg = "DarkOrange"})
             vim.api.nvim_set_hl(0, "SpecialComment", {fg = "DarkOrange"})
+            vim.api.nvim_set_hl(0, "@markup.raw",    {fg = "Blue"})
             vim.api.nvim_set_hl(0, "Function",       {fg = "#9e95c7"}) -- wisteria
             vim.api.nvim_set_hl(0, "Type",           {fg = "#95a99f"}) -- quartz
             vim.api.nvim_set_hl(0, "PreProc",        {fg = "#95a99f"})
