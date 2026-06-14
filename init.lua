@@ -1,7 +1,7 @@
-local load_plugins = true
+local load_plugins = false
 
 -- colorscheme -----------------------------------------------------------------
-local current_colorscheme = 2
+local current_colorscheme = 1
 vim.api.nvim_create_user_command(
     'ColoRefresh',
     function(opts)
@@ -131,9 +131,12 @@ vim.api.nvim_create_autocmd("TextYankPost", {
     pattern = "*",
 })
 
+-- quickfix list height --------------------------------------------------------
+vim.api.nvim_create_autocmd(FILE_TYPE,
+    { pattern = "qf", callback = function() vim.cmd("resize 6") end }
+)
+
 -- [A]lign ---------------------------------------------------------------------
-vim.keymap.set('v', '<leader>a', ':!column -t -s= -o=<CR>', { silent = true })
--- more complex alignment
 local function align_line(line, sep, maxpos)
     local before, after = line:match('(.-)%s*(' .. sep .. '.*)')
     if not before then return line end
@@ -161,14 +164,9 @@ vim.api.nvim_create_user_command(
     end,
     { nargs = '?', range = true }
 )
-vim.keymap.set('v', '<leader><leader>a', ':Align<CR>', { silent = true })
+vim.keymap.set('v', '<leader>a', ':Align<CR>', { silent = true })
 
 local FILE_TYPE = "FileType"
-
--- quickfix list height --------------------------------------------------------
-vim.api.nvim_create_autocmd(FILE_TYPE,
-    { pattern = "qf", callback = function() vim.cmd("resize 6") end }
-)
 
 -- snippets --------------------------------------------------------------------
 local function _expand_snippet(trigger, body)
@@ -348,3 +346,4 @@ if load_plugins then
         end,
     }, }
 end
+
