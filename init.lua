@@ -1,4 +1,5 @@
 local load_plugins = false
+local FILE_TYPE = "FileType"
 
 -- colorscheme -----------------------------------------------------------------
 local current_colorscheme = 1
@@ -165,8 +166,6 @@ vim.api.nvim_create_user_command(
     { nargs = '?', range = true }
 )
 vim.keymap.set('v', '<leader>a', ':Align<CR>', { silent = true })
-
-local FILE_TYPE = "FileType"
 
 -- snippets --------------------------------------------------------------------
 local function _expand_snippet(trigger, body)
@@ -346,4 +345,3 @@ if load_plugins then
         end,
     }, }
 end
-
