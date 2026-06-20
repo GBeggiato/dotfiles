@@ -1,8 +1,8 @@
-local load_plugins = false
+local load_plugins = true
 local FILE_TYPE = "FileType"
 
 -- colorscheme -----------------------------------------------------------------
-local current_colorscheme = 5
+local current_colorscheme = 4
 vim.api.nvim_create_user_command(
     'ColoRefresh',
     function(opts)
@@ -42,8 +42,16 @@ vim.api.nvim_create_user_command(
         elseif current_colorscheme == 6 then
             vim.cmd("colorscheme pablo")
             vim.api.nvim_set_hl(0, "Special", {link = "Normal"})
+        elseif current_colorscheme == 7 then
+            vim.cmd("colorscheme quiet")
+            vim.api.nvim_set_hl(0, "String",    {fg = "NvimLightGreen"})
+            vim.api.nvim_set_hl(0, "Statement", {fg = "DarkOrange", bold=true})
+            vim.api.nvim_set_hl(0, "Function",  {fg = "DarkOrange"})
+            vim.api.nvim_set_hl(0, "PreProc",   {fg = "DarkOrange"})
+            vim.api.nvim_set_hl(0, "Constant",  {link = "MatchParen"})
+            vim.api.nvim_set_hl(0, "Type",      {link = "MatchParen"})
         end
-        current_colorscheme = (current_colorscheme + 1) % 7
+        current_colorscheme = (current_colorscheme + 1) % 8
     end,
     {}
 )
@@ -223,6 +231,7 @@ free($2);
         _snippet("ty",    'typedef $1 {\n\t$3\n} $2;')
         _snippet("dbg",   'printf("$1 = %$2\\n", $1);')
         _snippet("print", 'printf("%$1\\n", $2);')
+        _snippet("st",    '$1 ($2) {\n\t$3\n}')
 
     end
 })
