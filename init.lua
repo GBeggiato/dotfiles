@@ -2,7 +2,8 @@ local load_plugins = true
 local FILE_TYPE = "FileType"
 
 -- colorscheme -----------------------------------------------------------------
-local current_colorscheme = 4
+-- function-preproc, const-type, string, statement, comment
+local current_colorscheme = 7
 vim.api.nvim_create_user_command(
     'ColoRefresh',
     function(opts)
@@ -11,19 +12,16 @@ vim.api.nvim_create_user_command(
             vim.api.nvim_set_hl(0, "Type",           {link = "DiagnosticWarn"})
             vim.api.nvim_set_hl(0, "PreProc",        {link = "Identifier"})
             vim.api.nvim_set_hl(0, "Constant",       {link = "Identifier"})
-            vim.api.nvim_set_hl(0, "SpecialComment", {link = "Comment"})
         elseif current_colorscheme == 1 then
             vim.cmd.colorscheme("lunaperche")
             vim.api.nvim_set_hl(0, "Function",       {link = "PreProc"})
             vim.api.nvim_set_hl(0, "Special",        {link = "Normal"})
-            vim.api.nvim_set_hl(0, "SpecialComment", {link = "Comment"})
         elseif current_colorscheme == 2 then
             -- poor man's gruber darker (https://github.com/rexim/gruber-darker-theme)
             vim.cmd.colorscheme("quiet")
             vim.api.nvim_set_hl(0, "Statement",      {fg = "Yellow"})
             vim.api.nvim_set_hl(0, "String",         {fg = "LimeGreen"})
             vim.api.nvim_set_hl(0, "Comment",        {fg = "DarkOrange"})
-            vim.api.nvim_set_hl(0, "SpecialComment", {fg = "DarkOrange"})
             vim.api.nvim_set_hl(0, "@markup.raw",    {fg = "Blue"})
             vim.api.nvim_set_hl(0, "Function",       {fg = "#9e95c7"}) -- wisteria
             vim.api.nvim_set_hl(0, "Type",           {fg = "#95a99f"}) -- quartz
@@ -45,13 +43,21 @@ vim.api.nvim_create_user_command(
         elseif current_colorscheme == 7 then
             vim.cmd("colorscheme quiet")
             vim.api.nvim_set_hl(0, "String",    {fg = "NvimLightGreen"})
+            vim.api.nvim_set_hl(0, "Statement", {fg = "DarkOrange"})
+            vim.api.nvim_set_hl(0, "Function",  {fg = "DarkYellow"})
+            vim.api.nvim_set_hl(0, "PreProc",   {link = "Function"})
+            vim.api.nvim_set_hl(0, "Constant",  {fg = "#ff00af"})
+            vim.api.nvim_set_hl(0, "Type",      {fg = "#ff00af"})
+        elseif current_colorscheme == 8 then
+            vim.api.nvim_set_hl(0, "String",    {fg = "NvimLightGreen"})
             vim.api.nvim_set_hl(0, "Statement", {fg = "DarkOrange", bold=true})
             vim.api.nvim_set_hl(0, "Function",  {fg = "DarkOrange"})
-            vim.api.nvim_set_hl(0, "PreProc",   {fg = "DarkOrange"})
+            vim.api.nvim_set_hl(0, "PreProc",   {link = "Function"})
             vim.api.nvim_set_hl(0, "Constant",  {link = "MatchParen"})
             vim.api.nvim_set_hl(0, "Type",      {link = "MatchParen"})
         end
-        current_colorscheme = (current_colorscheme + 1) % 8
+        vim.api.nvim_set_hl(0, "SpecialComment", {link = "Comment"})
+        current_colorscheme = (current_colorscheme + 1) % 9
     end,
     {}
 )
