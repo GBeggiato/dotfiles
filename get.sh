@@ -6,6 +6,9 @@ echo "fetched .bashrc"
 cp ~/.config/nvim/init.lua init.lua
 echo "fetched init.lua"
 
+cp ~/.config/nvim/colors.lua colors.lua
+echo "fetched colors.lua"
+
 # cp ~/.config/nvim/plugins.lua plugins.lua
 
 # cp ~/desktop/media/imgs/skyline.PNG        skyline.PNG

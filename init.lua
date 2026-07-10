@@ -3,6 +3,13 @@ local FILE_TYPE = "FileType"
 
 vim.cmd.colorscheme("habamax")
 
+vim.api.nvim_set_hl(0, "Statement",      {fg = "DeepPink2"})
+vim.api.nvim_set_hl(0, "String",         {fg = "DarkYellow"})
+vim.api.nvim_set_hl(0, "SpecialComment", {link = "Comment"})
+for _, group in ipairs({"Function", "PreProc", "Type", "Constant", "Identifier"}) do
+    vim.api.nvim_set_hl(0, group, {fg = "NvimLightBlue"})
+end
+
 -- basic behaviour -------------------------------------------------------------
 vim.g.mapleader        = vim.keycode("<space>")
 vim.g.maplocalleader   = vim.keycode("<space>")
@@ -30,6 +37,8 @@ vim.opt.path:append("**")
 vim.opt.wildignore:append({"*.o", "*.obj", "*.pyc"})
 
 -- [[remap land]] (M = meta = alt key)  ----------------------------------------
+-- jump to config file
+vim.keymap.set("n", "<leader><leader>I", "<cmd>edit ~/.config/nvim/init.lua<CR>")
 -- quick save
 vim.keymap.set("n", "<leader>w", "<cmd>update<CR>")
 -- ESC working in terminal mode
