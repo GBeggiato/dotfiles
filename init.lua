@@ -2,12 +2,11 @@ local load_plugins = true
 local FILE_TYPE = "FileType"
 
 vim.cmd.colorscheme("habamax")
-
-vim.api.nvim_set_hl(0, "Statement",      {fg = "DeepPink2"})
-vim.api.nvim_set_hl(0, "String",         {fg = "DarkYellow"})
+vim.api.nvim_set_hl(0, "String", {fg = "DarkYellow"})
 vim.api.nvim_set_hl(0, "SpecialComment", {link = "Comment"})
-for _, group in ipairs({"Function", "PreProc", "Type", "Constant", "Identifier"}) do
-    vim.api.nvim_set_hl(0, group, {fg = "NvimLightBlue"})
+vim.api.nvim_set_hl(0, "Statement", {link = "Constant"})
+for _, group in ipairs({"Special", "PreProc", "Type", "Number", "Function"}) do
+    vim.api.nvim_set_hl(0, group, {link = "Identifier"})
 end
 
 -- basic behaviour -------------------------------------------------------------
