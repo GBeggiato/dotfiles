@@ -2,12 +2,24 @@ local load_plugins = true
 local FILE_TYPE = "FileType"
 
 vim.cmd.colorscheme("habamax")
-vim.api.nvim_set_hl(0, "String", {fg = "DarkYellow"})
+vim.api.nvim_set_hl(0, "String",         {fg = "DarkYellow"})
 vim.api.nvim_set_hl(0, "SpecialComment", {link = "Comment"})
-vim.api.nvim_set_hl(0, "Statement", {link = "Constant"})
+vim.api.nvim_set_hl(0, "Statement",      {link = "Constant"})
 for _, group in ipairs({"Special", "PreProc", "Type", "Number", "Function"}) do
-    vim.api.nvim_set_hl(0, group, {link = "Identifier"})
+    vim.api.nvim_set_hl(0, group,        {link = "Identifier"})
 end
+
+-- -- light scheme
+-- vim.cmd.colorscheme("morning")
+-- vim.cmd.colorscheme("quiet")
+-- vim.api.nvim_set_hl(0, "Statement",      {fg = "Black", bold=true})
+-- vim.api.nvim_set_hl(0, "Constant",       {link = "Statement"})
+-- vim.api.nvim_set_hl(0, "String",         {fg = "DarkGreen"})
+-- vim.api.nvim_set_hl(0, "Comment",        {link = "VertSplit"})
+-- vim.api.nvim_set_hl(0, "SpecialComment", {link = "VertSplit"})
+-- for _, group in ipairs({"Identifier", "Special", "PreProc", "Type", "Number", "Function"}) do
+--     vim.api.nvim_set_hl(0, group,        {fg = "Blue"})
+-- end
 
 -- basic behaviour -------------------------------------------------------------
 vim.g.mapleader        = vim.keycode("<space>")

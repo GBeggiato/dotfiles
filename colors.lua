@@ -62,29 +62,22 @@ vim.cmd("ColoRefresh")
 
 
 vim.cmd.colorscheme("lunaperche")
-vim.api.nvim_set_hl(0, "Constant",       {link = "Type"})
-vim.api.nvim_set_hl(0, "Function",       {link = "PreProc"})
 vim.api.nvim_set_hl(0, "SpecialComment", {link = "Comment"})
-
-for _, group in ipairs({"Special", "Function", "PreProc", "Type", "Constant", "Identifier"}) do
-    vim.api.nvim_set_hl(0, group, {link = "PreProc"})
+vim.api.nvim_set_hl(0, "Statement",      {link = "Constant"})
+for _, group in ipairs({"Special", "Identifier", "Type", "Number", "Function"}) do
+    vim.api.nvim_set_hl(0, group,        {link = "PreProc"})
 end
 
 
-vim.cmd.colorscheme("habamax")
-
-vim.api.nvim_set_hl(0, "Statement",      {fg = "DeepPink2"})
-vim.api.nvim_set_hl(0, "String",         {fg = "DarkYellow"})
-vim.api.nvim_set_hl(0, "SpecialComment", {link = "Comment"})
-for _, group in ipairs({"Special", "Function", "PreProc", "Type", "Constant", "Identifier"}) do
-    vim.api.nvim_set_hl(0, group, {fg = "NvimLightBlue"})
+-- light scheme
+vim.cmd.colorscheme("morning")
+vim.cmd.colorscheme("quiet")
+vim.api.nvim_set_hl(0, "Statement",      {fg = "Black", bold=true})
+vim.api.nvim_set_hl(0, "Constant",       {link = "Statement"})
+vim.api.nvim_set_hl(0, "String",         {fg = "DarkGreen"})
+vim.api.nvim_set_hl(0, "Comment",        {link = "VertSplit"})
+vim.api.nvim_set_hl(0, "SpecialComment", {link = "VertSplit"})
+for _, group in ipairs({"Identifier", "Special", "PreProc", "Type", "Number", "Function"}) do
+    vim.api.nvim_set_hl(0, group,        {fg = "Blue"})
 end
 
-
-
-
-vim.api.nvim_set_hl(0, "SpecialComment", {link = "Comment"})
-vim.api.nvim_set_hl(0, "Constant", {link = "Statement"})
-for _, group in ipairs({"Special", "PreProc", "Type", "Number", "Function"}) do
-    vim.api.nvim_set_hl(0, group, {link = "Identifier"})
-end
