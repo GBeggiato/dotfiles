@@ -81,3 +81,32 @@ for _, group in ipairs({"Identifier", "Special", "PreProc", "Type", "Number", "F
     vim.api.nvim_set_hl(0, group,        {fg = "Blue"})
 end
 
+
+
+
+vim.api.nvim_create_user_command("ColoLight",
+    function() 
+        vim.cmd.colorscheme("morning")
+        vim.cmd.colorscheme("quiet")
+        vim.api.nvim_set_hl(0, "Statement",      {fg="Black", bold=true})
+        vim.api.nvim_set_hl(0, "String",         {fg="Green", bold=true})
+        vim.api.nvim_set_hl(0, "Constant",       {link="Statement"})
+        vim.api.nvim_set_hl(0, "Comment",        {link="VertSplit"})
+        vim.api.nvim_set_hl(0, "SpecialComment", {link="Comment"})
+        for _, group in ipairs({"Identifier", "Special", "PreProc", "Type", "Number", "Function"}) do
+            vim.api.nvim_set_hl(0, group,        {fg="Blue"})
+        end
+    end, {}
+)
+vim.api.nvim_create_user_command("ColoDark",
+    function() 
+        vim.cmd.colorscheme("habamax")
+        vim.api.nvim_set_hl(0, "Statement",      {link="Constant"})
+        vim.api.nvim_set_hl(0, "String",         {fg="DarkYellow"})
+        vim.api.nvim_set_hl(0, "SpecialComment", {link="Comment"})
+        for _, group in ipairs({"Special", "PreProc", "Type", "Number", "Function"}) do
+            vim.api.nvim_set_hl(0, group,        {link="Identifier"})
+        end
+    end, {}
+)
+vim.cmd("ColoDark")
