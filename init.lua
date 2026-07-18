@@ -1,4 +1,4 @@
-local load_plugins = true
+local load_plugins = false
 local FILE_TYPE = "FileType"
 
 vim.api.nvim_create_user_command("ColoLight",
@@ -15,6 +15,16 @@ vim.api.nvim_create_user_command("ColoLight",
         end
     end, {}
 )
+vim.api.nvim_create_user_command("ColoLuna",
+    function() 
+        vim.cmd.colorscheme("lunaperche")
+        vim.api.nvim_set_hl(0, "Statement",      {link="Constant"})
+        vim.api.nvim_set_hl(0, "SpecialComment", {link="Comment"})
+        for _, group in ipairs({"Special", "Identifier", "Type", "Number", "Function"}) do
+            vim.api.nvim_set_hl(0, group,        {link="PreProc"})
+        end
+    end, {}
+)
 vim.api.nvim_create_user_command("ColoDark",
     function() 
         vim.cmd.colorscheme("habamax")
@@ -27,6 +37,7 @@ vim.api.nvim_create_user_command("ColoDark",
     end, {}
 )
 vim.cmd("ColoDark")
+
 
 -- basic behaviour -------------------------------------------------------------
 vim.g.mapleader        = vim.keycode("<space>")
