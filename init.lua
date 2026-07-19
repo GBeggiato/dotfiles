@@ -1,43 +1,19 @@
 local load_plugins = false
 local FILE_TYPE = "FileType"
 
-vim.api.nvim_create_user_command("ColoLight",
-    function() 
-        vim.cmd.colorscheme("morning")
-        vim.cmd.colorscheme("quiet")
-        vim.api.nvim_set_hl(0, "Statement",      {fg="Black", bold=true})
-        vim.api.nvim_set_hl(0, "String",         {fg="DarkRed", bold=true})
-        vim.api.nvim_set_hl(0, "Constant",       {link="Statement"})
-        vim.api.nvim_set_hl(0, "Comment",        {link="VertSplit"})
-        vim.api.nvim_set_hl(0, "SpecialComment", {link="Comment"})
-        for _, group in ipairs({"Identifier", "Special", "PreProc", "Type", "Number", "Float", "Function"}) do
-            vim.api.nvim_set_hl(0, group,        {fg="Blue"})
-        end
-    end, {}
-)
-vim.api.nvim_create_user_command("ColoLuna",
-    function() 
-        vim.cmd.colorscheme("lunaperche")
-        vim.api.nvim_set_hl(0, "Statement",      {link="Constant"})
-        vim.api.nvim_set_hl(0, "SpecialComment", {link="Comment"})
-        for _, group in ipairs({"Special", "Identifier", "Type", "Number", "Function"}) do
-            vim.api.nvim_set_hl(0, group,        {link="PreProc"})
-        end
-    end, {}
-)
 vim.api.nvim_create_user_command("ColoDark",
-    function() 
+    function()
         vim.cmd.colorscheme("habamax")
         vim.api.nvim_set_hl(0, "Statement",      {link="Constant"})
         vim.api.nvim_set_hl(0, "String",         {fg="DarkYellow"})
+        vim.api.nvim_set_hl(0, "Number",         {link="String"})
+        vim.api.nvim_set_hl(0, "Special",        {link="Identifier"})
+        vim.api.nvim_set_hl(0, "PreProc",        {link="Identifier"})
+        vim.api.nvim_set_hl(0, "Type",           {link="Identifier"})
         vim.api.nvim_set_hl(0, "SpecialComment", {link="Comment"})
-        for _, group in ipairs({"Special", "PreProc", "Type", "Number", "Function"}) do
-            vim.api.nvim_set_hl(0, group,        {link="Identifier"})
-        end
     end, {}
 )
 vim.cmd("ColoDark")
-
 
 -- basic behaviour -------------------------------------------------------------
 vim.g.mapleader        = vim.keycode("<space>")
@@ -113,6 +89,7 @@ vim.keymap.set("i", "[[",  "[]<Left>")
 vim.keymap.set("i", "{{",  "{}<Left>")
 vim.keymap.set('i', '""',  '""<Left>')
 vim.keymap.set('i', "''",  "''<Left>")
+vim.keymap.set("i", "``",  "``<Left>")
 ---- open and automatically close, on multiple lines
 vim.keymap.set("i", "(<CR>", "()<Left><CR><Esc>O")
 vim.keymap.set("i", "[<CR>", "[]<Left><CR><Esc>O")
@@ -267,7 +244,7 @@ local function filetype_keymap(pattern, mode, key, val)
         callback = function(ev) vim.keymap.del(mode, key) end
     })
 end
-filetype_keymap("*.go", "i", ":", " := ")
+filetype_keymap("*.go", "i", "::", " := ")
 filetype_keymap("*.rs", "i", "<<", "<><Left>")
 filetype_keymap("*.rs", "i", "/*", "/*  */<Esc>2hi")
 filetype_keymap("*.c",  "i", "/*", "/*  */<Esc>2hi")

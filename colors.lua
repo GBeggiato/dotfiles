@@ -109,4 +109,13 @@ vim.api.nvim_create_user_command("ColoDark",
         end
     end, {}
 )
-vim.cmd("ColoDark")
+vim.api.nvim_create_user_command("ColoLuna",
+    function() 
+        vim.cmd.colorscheme("lunaperche")
+        vim.api.nvim_set_hl(0, "Statement",      {link="Constant"})
+        vim.api.nvim_set_hl(0, "SpecialComment", {link="Comment"})
+        for _, group in ipairs({"Special", "Identifier", "Type", "Number", "Function"}) do
+            vim.api.nvim_set_hl(0, group,        {link="PreProc"})
+        end
+    end, {}
+)
