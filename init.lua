@@ -2,14 +2,14 @@ local load_plugins = false
 local FILE_TYPE = "FileType"
 
 vim.api.nvim_create_user_command("ColoDark",
-    function()
+    function() 
         vim.cmd.colorscheme("habamax")
         vim.api.nvim_set_hl(0, "Statement",      {link="Constant"})
-        vim.api.nvim_set_hl(0, "String",         {fg="DarkYellow"})
-        vim.api.nvim_set_hl(0, "Number",         {link="String"})
         vim.api.nvim_set_hl(0, "Special",        {link="Identifier"})
         vim.api.nvim_set_hl(0, "PreProc",        {link="Identifier"})
         vim.api.nvim_set_hl(0, "Type",           {link="Identifier"})
+        -- vim.api.nvim_set_hl(0, "String",         {fg="DarkYellow"})
+        vim.api.nvim_set_hl(0, "Number",         {link="String"})
         vim.api.nvim_set_hl(0, "SpecialComment", {link="Comment"})
     end, {}
 )
