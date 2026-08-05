@@ -23,4 +23,7 @@ shopt -s checkwinsize
 alias la='ls -ahl'
 alias grep='grep --color=auto'
 
-alias update='echo "---------------------" && echo "sudo xbps-install -Suv" && sudo xbps-install -Suv'
+alias update='echo "---------------------" && \
+    echo "sudo xbps-install -Suv && sudo xbps-remove --remove-orphans -R" && \
+          sudo xbps-install -Suv && sudo xbps-remove --remove-orphans -R'
+

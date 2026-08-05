@@ -4,7 +4,21 @@
 
 # prerequisites / other packages
 echo "CONFIG_INSTALLER: adding more packages ..."
-sudo xbps-install -SudMv bash-completion cmake ctags curl gcc gettext git make mupdf nodejs python-tkinter tex
+sudo xbps-install -RSuvdM \
+    bash-completion       \
+    cmake                 \
+    ctags                 \
+    curl                  \
+    gcc                   \
+    gettext               \
+    git                   \
+    make                  \
+    mupdf                 \
+    nodejs                \
+    python-tkinter        \
+    tex                   \
+    # scrot = screenshot
+    scrot                 \
 echo "CONFIG_INSTALLER: DONE"
 
 # ----------------------------------------------------------------------------
@@ -14,6 +28,7 @@ echo "NVIM_CONFIG_INSTALLER: START"
 cd ~
 # install from source
 git clone https://github.com/neovim/neovim
+echo "NVIM_CONFIG_INSTALLER: repo cloned"
 cd neovim
 # most optimizations
 make CMAKE_BUILD_TYPE=Release
@@ -25,39 +40,39 @@ echo "NVIM_CONFIG_INSTALLER: ~/.config/nvim is there"
 cd ~/.config/nvim/
 wget https://raw.githubusercontent.com/GBeggiato/dotfiles/refs/heads/master/init.lua
 echo "NVIM_CONFIG_INSTALLER: downloaded latest commit of init.lua"
-# sudo xbps-install -SudMv npm
+sudo xbps-install -RSudMv npm
 echo "NVIM_CONFIG_INSTALLER: installed npm for the pyright server"
 echo "NVIM_CONFIG_INSTALLER: DONE"
 
 # ----------------------------------------------------------------------------
+# /usr/share/doc/steam
 
-echo "BASHRC_CONFIG_INSTALLER: start"
+echo "INSTALLER STEAM: start"
 
-echo "# .bashrc" > ~/.bashrc
-echo "" >> ~/.bashrc
-echo "# If not running interactively, don't do anything" >> ~/.bashrc
-echo "[[ $- != *i* ]] && return" >> ~/.bashrc
-echo "" >> ~/.bashrc
-echo "alias ls='ls --color=auto'" >> ~/.bashrc
-echo "PS1='[\u@\h] \w\n\$ '" >> ~/.bashrc
-echo "" >> ~/.bashrc
-echo "### added from mint bashrc" >> ~/.bashrc
-echo "# don't put duplicate lines or lines starting with space in the history." >> ~/.bashrc
-echo "# See bash(1) for more options" >> ~/.bashrc
-echo "HISTCONTROL=ignoreboth" >> ~/.bashrc
-echo "# append to the history file, don't overwrite it" >> ~/.bashrc
-echo "shopt -s histappend" >> ~/.bashrc
-echo "# for setting history length see HISTSIZE and HISTFILESIZE in bash(1)" >> ~/.bashrc
-echo "HISTSIZE=100" >> ~/.bashrc
-echo "HISTFILESIZE=200" >> ~/.bashrc
-echo "# check the window size after each command and, if necessary," >> ~/.bashrc
-echo "# update the values of LINES and COLUMNS." >> ~/.bashrc
-echo "shopt -s checkwinsize" >> ~/.bashrc
-echo "" >> ~/.bashrc
-echo "# some more ls aliases" >> ~/.bashrc
-echo "alias la='ls -ahl'" >> ~/.bashrc
-echo "alias grep='grep --color=auto'" >> ~/.bashrc
-echo "" >> ~/.bashrc
-echo "alias update='echo "---------------------" && echo "sudo xbps-install -Suv" && sudo xbps-install -Suv'" >> ~/.bashrc
+# Install Steam
+### Enable repositories
+sudo xbps-install -RSuvdM      \
+    void-repo-nonfree          \
+    void-repo-multilib         \
+    void-repo-multilib-nonfree \
 
-echo "BASHRC_CONFIG_INSTALLER: DONE"
+### Install dependencies
+sudo xbps-install -RSuvdM \
+	steam                 \
+	libgcc-32bit          \
+	libstdc++-32bit       \
+	libdrm-32bit          \
+	libglvnd-32bit        \
+	mono                  \
+	mesa-32bit            \
+	vulkan-loader         \
+	mesa-dri-32bit        \
+	gstreamer1            \
+	amdvlk                \
+	xf86-video-amdgpu     \
+	mesa-vaapi            \
+	mesa-vdpau            \
+	mesa-dri-32bit        \
+
+echo "INSTALLER STEAM: end"
+
