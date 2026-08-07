@@ -26,4 +26,3 @@ alias grep='grep --color=auto'
 alias update='echo "---------------------" && \
     echo "sudo xbps-install -Suv && sudo xbps-remove --remove-orphans -R" && \
           sudo xbps-install -Suv && sudo xbps-remove --remove-orphans -R'
-

@@ -1,19 +1,28 @@
 local load_plugins = false
 local FILE_TYPE = "FileType"
 
-vim.api.nvim_create_user_command("ColoDark",
-    function() 
+vim.api.nvim_create_user_command("Colo", function(cmdopts)
+    local kind = string.lower(cmdopts.args)
+    if kind == "dark" then
         vim.cmd.colorscheme("habamax")
-        vim.api.nvim_set_hl(0, "Statement",      {link="Constant"})
-        vim.api.nvim_set_hl(0, "Special",        {link="Identifier"})
-        vim.api.nvim_set_hl(0, "PreProc",        {link="Identifier"})
-        vim.api.nvim_set_hl(0, "Type",           {link="Identifier"})
-        -- vim.api.nvim_set_hl(0, "String",         {fg="DarkYellow"})
-        vim.api.nvim_set_hl(0, "Number",         {link="String"})
-        vim.api.nvim_set_hl(0, "SpecialComment", {link="Comment"})
-    end, {}
-)
-vim.cmd("ColoDark")
+        vim.api.nvim_set_hl(0, "PreProc",    {link="Identifier"})
+        vim.api.nvim_set_hl(0, "Special",    {link="Identifier"})
+        vim.api.nvim_set_hl(0, "Type",       {link="Identifier"})
+    elseif kind == "bright" then
+        vim.cmd.colorscheme("wildcharm")
+        vim.api.nvim_set_hl(0, "Function",   {link="PreProc"})
+        vim.api.nvim_set_hl(0, "Identifier", {link="PreProc"})
+        vim.api.nvim_set_hl(0, "Special",    {link="PreProc"})
+        vim.api.nvim_set_hl(0, "Type",       {link="PreProc"})
+    else
+        
+    end
+    vim.api.nvim_set_hl(0, "Statement",      {link="Constant"})
+    vim.api.nvim_set_hl(0, "SpecialComment", {link="Comment"})
+    vim.api.nvim_set_hl(0, "Number",         {link="String"})
+end, { nargs = 1, })
+
+vim.cmd("Colo dark")
 
 -- basic behaviour -------------------------------------------------------------
 vim.g.mapleader        = vim.keycode("<space>")
