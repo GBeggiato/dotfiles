@@ -1,28 +1,30 @@
-local load_plugins = false
+local load_plugins = true
 local FILE_TYPE = "FileType"
 
-vim.api.nvim_create_user_command("Colo", function(cmdopts)
-    local kind = string.lower(cmdopts.args)
-    if kind == "dark" then
-        vim.cmd.colorscheme("habamax")
-        vim.api.nvim_set_hl(0, "PreProc",    {link="Identifier"})
-        vim.api.nvim_set_hl(0, "Special",    {link="Identifier"})
-        vim.api.nvim_set_hl(0, "Type",       {link="Identifier"})
-    elseif kind == "bright" then
-        vim.cmd.colorscheme("wildcharm")
-        vim.api.nvim_set_hl(0, "Function",   {link="PreProc"})
-        vim.api.nvim_set_hl(0, "Identifier", {link="PreProc"})
-        vim.api.nvim_set_hl(0, "Special",    {link="PreProc"})
-        vim.api.nvim_set_hl(0, "Type",       {link="PreProc"})
-    else
-        
-    end
+vim.api.nvim_create_user_command("ColoDark", function()
+    vim.cmd.colorscheme("habamax")
+    vim.api.nvim_set_hl(0, "PreProc",    {link="Identifier"})
+    vim.api.nvim_set_hl(0, "Special",    {link="Identifier"})
+    vim.api.nvim_set_hl(0, "Type",       {link="Identifier"})
     vim.api.nvim_set_hl(0, "Statement",      {link="Constant"})
     vim.api.nvim_set_hl(0, "SpecialComment", {link="Comment"})
     vim.api.nvim_set_hl(0, "Number",         {link="String"})
-end, { nargs = 1, })
+end, {})
 
-vim.cmd("Colo dark")
+vim.cmd("ColoDark")
+
+vim.api.nvim_create_user_command("ColoDef", function()
+    vim.cmd.colorscheme("default")
+    vim.api.nvim_set_hl(0, "PreProc",        {link="Identifier"})
+    vim.api.nvim_set_hl(0, "Special",        {link="Identifier"})
+    vim.api.nvim_set_hl(0, "Constant",       {link="Identifier"})
+    vim.api.nvim_set_hl(0, "Number",         {link="Identifier"})
+    vim.api.nvim_set_hl(0, "Type",           {link="Identifier"})
+    vim.api.nvim_set_hl(0, "Function",       {link="Identifier"})
+    vim.api.nvim_set_hl(0, "SpecialComment", {link="Comment"})
+    vim.api.nvim_set_hl(0, "Operator",       {link="Statement"})
+end, {})
+
 
 -- basic behaviour -------------------------------------------------------------
 vim.g.mapleader        = vim.keycode("<space>")
