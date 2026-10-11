@@ -6,6 +6,7 @@
 echo "CONFIG_INSTALLER: adding more packages ..."
 sudo xbps-install -RSuvdM \
     bash-completion       \
+    neovim                \
     cmake                 \
     ctags                 \
     curl                  \
@@ -23,26 +24,26 @@ echo "CONFIG_INSTALLER: DONE"
 
 # ----------------------------------------------------------------------------
 
-echo "NVIM_CONFIG_INSTALLER: START"
-# install location root path
-cd ~
-# install from source
-git clone https://github.com/neovim/neovim
-echo "NVIM_CONFIG_INSTALLER: repo cloned"
-cd neovim
-# most optimizations
-make CMAKE_BUILD_TYPE=Release
-sudo make install
-echo "NVIM_CONFIG_INSTALLER: neovim installed"
-# fetching personal init.lua
-mkdir ~/.config/nvim/ -p
-echo "NVIM_CONFIG_INSTALLER: ~/.config/nvim is there"
-cd ~/.config/nvim/
-wget https://raw.githubusercontent.com/GBeggiato/dotfiles/refs/heads/master/init.lua
-echo "NVIM_CONFIG_INSTALLER: downloaded latest commit of init.lua"
-sudo xbps-install -RSudMv npm
-echo "NVIM_CONFIG_INSTALLER: installed npm for the pyright server"
-echo "NVIM_CONFIG_INSTALLER: DONE"
+# echo "NVIM_CONFIG_INSTALLER: START"
+# # install location root path
+# cd ~
+# # install from source
+# git clone https://github.com/neovim/neovim
+# echo "NVIM_CONFIG_INSTALLER: repo cloned"
+# cd neovim
+# # most optimizations
+# make CMAKE_BUILD_TYPE=Release
+# sudo make install
+# echo "NVIM_CONFIG_INSTALLER: neovim installed"
+# # fetching personal init.lua
+# mkdir ~/.config/nvim/ -p
+# echo "NVIM_CONFIG_INSTALLER: ~/.config/nvim is there"
+# cd ~/.config/nvim/
+# wget https://raw.githubusercontent.com/GBeggiato/dotfiles/refs/heads/master/init.lua
+# echo "NVIM_CONFIG_INSTALLER: downloaded latest commit of init.lua"
+# sudo xbps-install -RSudMv npm
+# echo "NVIM_CONFIG_INSTALLER: installed npm for the pyright server"
+# echo "NVIM_CONFIG_INSTALLER: DONE"
 
 # ----------------------------------------------------------------------------
 # /usr/share/doc/steam
