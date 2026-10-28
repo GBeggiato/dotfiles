@@ -1,7 +1,9 @@
 local load_plugins = true
 local FILE_TYPE = "FileType"
 
-vim.cmd.colorscheme("habamax")
+vim.cmd.colorscheme("wildcharm")
+vim.api.nvim_set_hl(0, "Function", {fg = "NvimLightBlue"})
+vim.api.nvim_set_hl(0, "Identifier", {fg = "NvimLightBlue"})
 
 -- basic behaviour -------------------------------------------------------------
 vim.g.mapleader        = vim.keycode("<space>")
@@ -86,8 +88,6 @@ vim.keymap.set("i", "{<CR>", "{}<Left><CR><Esc>O")
 vim.keymap.set("n", "<leader>t", "<cmd>terminal<CR>A")
 -- [n]orm
 vim.keymap.set("v", "<leader>n", ":norm ")
--- [c]hange [t] _ (underscore)
-vim.keymap.set("n", "c_", "ct_")
 
 -- [[ [TR]im [TR]ailing whitespace ]] ------------------------------------------
 vim.api.nvim_create_user_command('TRimTrailingWhiteSpace',
@@ -183,7 +183,6 @@ free($2);
         _snippet("dbg",   'printf("$1 = %$2\\n", $1);')
         _snippet("print", 'printf("%$1\\n", $2);')
         _snippet("st",    '$1 ($2) {\n\t$3\n}')
-
     end
 })
 vim.api.nvim_create_autocmd(FILE_TYPE, { group = SNIPPET_GROUP, pattern = {"html"},
@@ -315,3 +314,10 @@ filetype_keymap("*.h",  "i", "/*", "/*  */<Esc>2hi")
 --         end,
 --     }, }
 -- end
+
+-- -- needed only to play around with 'goose' lang
+-- vim.filetype.add({extension = {goose = "goose", }, })
+-- vim.api.nvim_create_autocmd("FileType", {
+--   pattern = "goose",
+--   callback = function() vim.bo.commentstring = "// %s" end,
+-- })

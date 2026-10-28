@@ -6,22 +6,13 @@
 alias ls='ls --color=auto'
 PS1='[\u@\h] \w\n\$ '
 
-### added from mint bashrc
-# don't put duplicate lines or lines starting with space in the history.
-# See bash(1) for more options
 HISTCONTROL=ignoreboth
-# append to the history file, don't overwrite it
-shopt -s histappend
-# for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
+shopt -s histappend # append to the history file, don't overwrite it
 HISTSIZE=100
 HISTFILESIZE=200
-# check the window size after each command and, if necessary,
-# update the values of LINES and COLUMNS.
-shopt -s checkwinsize
 
-# some more ls aliases
-alias la='ls -ahl'
+alias la='ls --color=auto -ahl'
 alias grep='grep --color=auto'
 
-alias update='echo "---------------------" && echo "sudo xbps-install -Suv" && sudo xbps-install -Suv'
-alias cleanup='echo "---------------------" && echo "sudo xbps-remove --remove-orphans -R" && sudo xbps-remove --remove-orphans -R'
+alias update='sudo xbps-install -Suv'
+alias cleanup='sudo xbps-remove --remove-orphans -Rv'
